@@ -261,10 +261,12 @@ class Vimeo_Importer_Admin {
 	}
 
 	/**
-	 * inner_meta_box - Load the insides
+	 * Callback for the meta box, container for everything added by Javascript.
 	 */
 	public function get_meta_box() {
-		echo '<div>Hello</div>';
+		echo '<div class="js-' . $this->plugin_slug . '">' .
+				'<noscript>Enable Javascript to import Vimeo videos.</noscript>' .
+			 '</div>';
 	}
 
 }
