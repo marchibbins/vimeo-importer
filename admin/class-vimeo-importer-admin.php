@@ -83,6 +83,8 @@ class Vimeo_Importer_Admin {
 
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
+		add_action( 'admin_head', array( $this, 'admin_head' ) );
+
 	}
 
 	/**
@@ -257,6 +259,16 @@ class Vimeo_Importer_Admin {
 	public function add_meta_boxes() {
 		foreach ( $this->get_supported_post_types() as $post_type ) {
 			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'normal' );
+		}
+	}
+
+	/**
+	 * Load admin Javascript on supported posts add/edit screen.
+	 */
+	function admin_head() {
+		global $post_type;
+		if ( in_array($post_type, $this->get_supported_post_types()) ) {
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
 		}
 	}
 
