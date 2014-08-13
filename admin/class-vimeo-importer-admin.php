@@ -208,77 +208,72 @@ class Vimeo_Importer_Admin {
 	}
 
 	/**
-	 * NOTE:     Actions are points in the execution of a page or process
-	 *           lifecycle that WordPress fires.
-	 *
-	 *           Actions:    http://codex.wordpress.org/Plugin_API#Actions
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
+	 * Add the Vimeo Importer meta box on supported posts add/edit screen.
 	 *
 	 * @since    1.0.0
 	 */
-	public function action_method_name() {
-		// @TODO: Define your action hook callback here
+	public function add_meta_boxes() {
+
+		foreach ( $this->get_supported_post_types() as $post_type ) {
+			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'normal' );
+		}
+
 	}
 
 	/**
-	 * NOTE:     Filters are points of execution in which WordPress modifies data
-	 *           before saving it or sending it to the browser.
-	 *
-	 *           Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
+	 * Load admin Javascript on supported posts add/edit screen.
 	 *
 	 * @since    1.0.0
 	 */
-	public function filter_method_name() {
-		// @TODO: Define your filter hook callback here
+	public function admin_head() {
+
+		global $post_type;
+		if ( in_array($post_type, $this->get_supported_post_types()) ) {
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
+		}
+
+	}
+
+	/**
+	 * Callback for the meta box, container for everything added by Javascript.
+	 *
+	 * @since    1.0.0
+	 */
+	public function get_meta_box() {
+
+		echo '<div class="js-' . $this->plugin_slug . '">' .
+				'<noscript>Enable Javascript to import Vimeo videos.</noscript>' .
+			 '</div>';
+
 	}
 
 	/**
 	 * Get the post types that can display the Vimeo Importer
 	 *
-	 * @param bool $details - Whether to return the entire object for each post type,
-	 *                        if false only an array of names will be returned.
+	 * @since    1.0.0
+	 *
+	 * @param 	 boolean    $details    Whether to return the entire object for each post type,
+	 *                                  if false only an array of names will be returned.
+	 *
+	 * @return   array
 	 */
-	public function get_supported_post_types($details = false) {
+	public function get_supported_post_types( $details = false ) {
+
 		$options = get_option( 'Vimeo_Importer_options' );
 		$post_types = explode(',', $options['post_types']);
+
 		if ( false === $details ) {
 			return $post_types;
 		}
+
 		$details = array();
 		foreach ( $post_types as $post_type ) {
 			$post_type_details = get_post_types( array('name' => $post_type), 'object' );
 			$details[$post_type] = $post_type_details[$post_type];
 		}
+
 		return $details;
-	}
 
-	/**
-	 * Add the Vimeo Importer meta box supported posts add/edit screen.
-	 */
-	public function add_meta_boxes() {
-		foreach ( $this->get_supported_post_types() as $post_type ) {
-			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'normal' );
-		}
-	}
-
-	/**
-	 * Load admin Javascript on supported posts add/edit screen.
-	 */
-	function admin_head() {
-		global $post_type;
-		if ( in_array($post_type, $this->get_supported_post_types()) ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
-		}
-	}
-
-	/**
-	 * Callback for the meta box, container for everything added by Javascript.
-	 */
-	public function get_meta_box() {
-		echo '<div class="js-' . $this->plugin_slug . '">' .
-				'<noscript>Enable Javascript to import Vimeo videos.</noscript>' .
-			 '</div>';
 	}
 
 }
