@@ -81,6 +81,8 @@ class Vimeo_Importer_Admin {
 		// add_action( '@TODO', array( $this, 'action_method_name' ) );
 		// add_filter( '@TODO', array( $this, 'filter_method_name' ) );
 
+		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+
 	}
 
 	/**
@@ -227,6 +229,42 @@ class Vimeo_Importer_Admin {
 	 */
 	public function filter_method_name() {
 		// @TODO: Define your filter hook callback here
+	}
+
+	/**
+	 * Get the post types that can display the Vimeo Importer
+	 *
+	 * @param bool $details - Whether to return the entire object for each post type,
+	 *                        if false only an array of names will be returned.
+	 */
+	public function get_supported_post_types($details = false) {
+		$options = get_option( 'Vimeo_Importer_options' );
+		$post_types = explode(',', $options['post_types']);
+		if ( false === $details ) {
+			return $post_types;
+		}
+		$details = array();
+		foreach ( $post_types as $post_type ) {
+			$post_type_details = get_post_types( array('name' => $post_type), 'object' );
+			$details[$post_type] = $post_type_details[$post_type];
+		}
+		return $details;
+	}
+
+	/**
+	 * Add the Vimeo Importer meta box supported posts add/edit screen.
+	 */
+	public function add_meta_boxes() {
+		foreach ( $this->get_supported_post_types() as $post_type ) {
+			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'normal' );
+		}
+	}
+
+	/**
+	 * inner_meta_box - Load the insides
+	 */
+	public function get_meta_box() {
+		echo '<div>Hello</div>';
 	}
 
 }

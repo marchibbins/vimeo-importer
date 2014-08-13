@@ -229,7 +229,15 @@ class Vimeo_Importer {
 	 * @since    1.0.0
 	 */
 	private static function single_activate() {
-		// @TODO: Define activation functionality here
+
+		$options = get_option( 'Vimeo_Importer_options' );
+
+		if (!$options ) {
+			$defaults = array();
+			$defaults['post_types'] = 'dsv_showreels';
+			update_option( 'Vimeo_Importer_options', $defaults );
+		}
+
 	}
 
 	/**
