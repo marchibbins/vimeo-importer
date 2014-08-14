@@ -230,12 +230,12 @@ class Vimeo_Importer {
 	 */
 	private static function single_activate() {
 
-		$options = get_option( 'Vimeo_Importer_options' );
+		$options = get_option( 'Vimeo_Importer' );
 
 		if (!$options ) {
 			$defaults = array();
 			$defaults['post_types'] = 'dsv_showreels';
-			update_option( 'Vimeo_Importer_options', $defaults );
+			update_option( 'Vimeo_Importer', $defaults );
 		}
 
 	}
@@ -246,7 +246,9 @@ class Vimeo_Importer {
 	 * @since    1.0.0
 	 */
 	private static function single_deactivate() {
-		// @TODO: Define deactivation functionality here
+
+		$options = delete_option( 'Vimeo_Importer' );
+
 	}
 
 	/**

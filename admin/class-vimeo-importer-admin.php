@@ -189,7 +189,7 @@ class Vimeo_Importer_Admin {
 	 */
 	public function admin_options_page() {
 		// Get current options
-		$options = get_option( 'Vimeo_Importer_options' );
+		$options = get_option( 'Vimeo_Importer' );
 
 		if ( isset( $_POST['options_submit'] ) ) {
 			$new_options['app_id'] = esc_attr( $_POST['app_id'] );
@@ -197,7 +197,7 @@ class Vimeo_Importer_Admin {
 			$new_options['access_token'] = esc_attr( $_POST['access_token'] );
 
 			// Update options with new values
-			update_option( 'Vimeo_Importer_options', $new_options );
+			update_option( 'Vimeo_Importer', $new_options );
 			$options = $new_options;
 		}
 
@@ -289,8 +289,8 @@ class Vimeo_Importer_Admin {
 	 */
 	public function get_supported_post_types( $details = false ) {
 
-		$options = get_option( 'Vimeo_Importer_options' );
-		$post_types = explode(',', $options['post_types']);
+		$options = get_option( 'Vimeo_Importer' );
+		$post_types = explode( ',', $options['post_types'] );
 
 		if ( false === $details ) {
 			return $post_types;
