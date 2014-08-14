@@ -35,10 +35,26 @@ foreach ( $_GET as $key => $value ) {
 
 // Init Vimeo
 include_once( 'includes/vimeo.php' );
+include_once( '../../../../wp-load.php' );
 
-$APP_ID = '';
-$APP_SECRET = '';
-$ACCESS_TOKEN = '';
+$options = get_option( 'Vimeo_Importer' );
+
+if ( !$options || !$options['app_id'] ) {
+    print 'app_id';
+    die;
+}
+ elseif ( !$options['app_secret'] ) {
+    print 'app_secret';
+    die;
+}
+ elseif ( !$options['access_token'] ) {
+    print 'access_token';
+    die;
+}
+
+$APP_ID = $options['app_id'];
+$APP_SECRET = $options['app_secret'];
+$ACCESS_TOKEN = $options['access_token'];
 
 $vimeo = new Vimeo( $APP_ID, $APP_SECRET, $ACCESS_TOKEN );
 
