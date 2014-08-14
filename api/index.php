@@ -18,14 +18,20 @@
 
 // Match only a few endpoints
 $endpoints = array(
-    'albums' => '/me/albums'
+    'albums' => '/me/albums',
+    'videos' => '/me/videos'
 );
 
 if ( !isset( $_GET['endpoint'] ) || !isset( $endpoints[$_GET['endpoint']] ) ) {
     die;
 }
 
-$endpoint = $endpoints[$_GET['endpoint']];
+$endpoint = $endpoints[$_GET['endpoint']] . '?';
+
+unset( $_GET['endpoint'] );
+foreach ( $_GET as $key => $value ) {
+    $endpoint .= $key . '=' . $value . '&';
+}
 
 // Init Vimeo
 include_once( 'includes/vimeo.php' );
