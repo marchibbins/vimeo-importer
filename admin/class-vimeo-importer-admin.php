@@ -66,11 +66,11 @@ class Vimeo_Importer_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Add the options page and menu item.
-		// add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
 		// Add an action link pointing to the options page.
 		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
-		// add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
+		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
 		/*
 		 * Define custom functionality.
@@ -177,7 +177,7 @@ class Vimeo_Importer_Admin {
 			__( 'Vimeo Importer', $this->plugin_slug ),
 			'manage_options',
 			$this->plugin_slug,
-			array( $this, 'display_plugin_admin_page' )
+			array( $this, 'admin_options_page' )
 		);
 
 	}
@@ -187,8 +187,22 @@ class Vimeo_Importer_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function display_plugin_admin_page() {
+	public function admin_options_page() {
+		// Get current options
+		$options = get_option( 'Vimeo_Importer_options' );
+
+		if ( isset( $_POST['options_submit'] ) ) {
+			$new_options['app_id'] = esc_attr( $_POST['app_id'] );
+			$new_options['app_secret'] = esc_attr( $_POST['app_secret'] );
+			$new_options['access_token'] = esc_attr( $_POST['access_token'] );
+
+			// Update options with new values
+			update_option( 'Vimeo_Importer_options', $new_options );
+			$options = $new_options;
+		}
+
 		include_once( 'views/admin.php' );
+
 	}
 
 	/**
