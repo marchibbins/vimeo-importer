@@ -1,5 +1,12 @@
 /* This stylesheet is used to style the admin option form of the plugin. */
 
+/* Inline content container */
 #vimeo-importer-thickbox {
     display: none;
+}
+
+/* Content container in Thickbox */
+.vimeo-importer-thickbox {
+    padding-bottom: 15px;
+    padding-top: 15px;
 }
