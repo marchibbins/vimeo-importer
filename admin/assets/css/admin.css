@@ -1,1 +1,5 @@
 /* This stylesheet is used to style the admin option form of the plugin. */
+
+#vimeo-importer-thickbox {
+    display: none;
+}

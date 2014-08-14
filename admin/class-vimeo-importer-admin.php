@@ -221,6 +221,18 @@ class Vimeo_Importer_Admin {
 	}
 
 	/**
+	 * Add Thickbox script and styles.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_thick_box() {
+
+		wp_enqueue_script( 'thickbox' );
+		wp_enqueue_style( 'thickbox' );
+
+	}
+
+	/**
 	 * Load admin Javascript on supported posts add/edit screen.
 	 *
 	 * @since    1.0.0
@@ -229,7 +241,11 @@ class Vimeo_Importer_Admin {
 
 		global $post_type;
 		if ( in_array($post_type, $this->get_supported_post_types()) ) {
+
+			$this->add_thick_box();
+
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
+			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Vimeo_Importer::VERSION );
 		}
 
 	}
