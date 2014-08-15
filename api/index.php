@@ -280,7 +280,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 *
-	 * @return    array    Inserted Videos CPT ids.
+	 * @return    array    Feedback on videos, created/exists by id.
 	 */
 	private function create_videos () {
 
@@ -304,7 +304,7 @@ class Vimeo_Importer_Api {
 					'post_title' => $video['post_title']
 				) );
 
-				// Custom fields, duplicate anything POSTed that starts with 'dsv_'
+				// Custom fields, add anything POSTed that starts with 'dsv_'
 				foreach ( $video as $key => $value ) {
 					if ( strpos( $key, 'dsv_' ) > -1) {
 						add_post_meta( $post_id, $key, $value );
