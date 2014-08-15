@@ -78,8 +78,6 @@ class Vimeo_Importer_Admin {
 		 * Read more about actions and filters:
 		 * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
 		 */
-		// add_action( '@TODO', array( $this, 'action_method_name' ) );
-		// add_filter( '@TODO', array( $this, 'filter_method_name' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
@@ -188,13 +186,22 @@ class Vimeo_Importer_Admin {
 	 * @since    1.0.0
 	 */
 	public function admin_options_page() {
+
 		// Get current options
 		$options = get_option( 'Vimeo_Importer' );
 
 		if ( isset( $_POST['options_submit'] ) ) {
+			// Form submitted
 			$new_options['app_id'] = esc_attr( $_POST['app_id'] );
 			$new_options['app_secret'] = esc_attr( $_POST['app_secret'] );
 			$new_options['access_token'] = esc_attr( $_POST['access_token'] );
+
+			// Save concatinate array to comma delimited string
+			if ( !empty( $_POST['post_types'] ) ) {
+				$new_options['post_types'] = esc_attr( implode( ',', $_POST['post_types'] ) );
+			} else {
+				$new_options['post_types'] = '';
+			}
 
 			// Update options with new values
 			update_option( 'Vimeo_Importer', $new_options );

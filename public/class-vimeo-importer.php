@@ -232,9 +232,8 @@ class Vimeo_Importer {
 
 		$options = get_option( 'Vimeo_Importer' );
 
-		if (!$options ) {
+		if ( !$options ) {
 			$defaults = array();
-			$defaults['post_types'] = 'dsv_showreels';
 			update_option( 'Vimeo_Importer', $defaults );
 		}
 

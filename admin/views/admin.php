@@ -44,6 +44,21 @@
 					<input type="text" id="vimeo-importer-access-token" name="access_token" value="<?php echo $options['access_token']?>">
 				</td>
 			</tr>
+
+			<tr valign="top">
+				<th scope="row">
+					<label>Display import button for the following post types</label>
+				</th>
+				<td>
+					<?php $supported_post_types = explode( ',', $options['post_types'] ) ?>
+					<?php foreach ( get_post_types( '', 'object' ) as $post_type => $details ): ?>
+						<input type="checkbox" id="vimeo-importer-post-type-<?php echo $post_type ?>" name="post_types[]" value="<?php echo $post_type ?>" <?php if ( in_array($post_type, $supported_post_types ) ): ?>checked="checked"<?php endif ?>>
+						<label for="vimeo-importer-post-type-<?php echo $post_type ?>"><?php echo $details->label ?></label>
+						<br>
+					<?php endforeach ?>
+				</td>
+			</tr>
+
 		</table>
 
 		<p class="submit">
