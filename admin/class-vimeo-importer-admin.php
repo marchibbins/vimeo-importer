@@ -12,13 +12,18 @@
  * Plugin class. This class should ideally be used to work with the
  * administrative side of the WordPress site.
  *
- * If you're interested in introducing public-facing
- * functionality, then refer to `class-vimeo-importer.php`
- *
  * @package Vimeo_Importer_Admin
  * @author  Marc Hibbins <marc@marchibbins.com>
  */
 class Vimeo_Importer_Admin {
+	/**
+	 * Plugin version, used for cache-busting of style and script file references.
+	 *
+	 * @since   1.0.0
+	 *
+	 * @var     string
+	 */
+	const VERSION = '1.0.0';
 
 	/**
 	 * Instance of this class.
@@ -28,6 +33,15 @@ class Vimeo_Importer_Admin {
 	 * @var      object
 	 */
 	protected static $instance = null;
+
+	/**
+	 * Unique identifier for your plugin.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      string
+	 */
+	protected $plugin_slug = 'vimeo-importer';
 
 	/**
 	 * Slug of the plugin screen.
@@ -45,21 +59,6 @@ class Vimeo_Importer_Admin {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
-		/*
-		 * @TODO :
-		 *
-		 * - Uncomment following lines if the admin class should only be available for super admins
-		 */
-		/* if( ! is_super_admin() ) {
-			return;
-		} */
-
-		/*
-		 * Call $plugin_slug from public plugin class.
-		 */
-		$plugin = Vimeo_Importer::get_instance();
-		$this->plugin_slug = $plugin->get_plugin_slug();
 
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -94,15 +93,6 @@ class Vimeo_Importer_Admin {
 	 */
 	public static function get_instance() {
 
-		/*
-		 * @TODO :
-		 *
-		 * - Uncomment following lines if the admin class should only be available for super admins
-		 */
-		/* if( ! is_super_admin() ) {
-			return;
-		} */
-
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
 			self::$instance = new self;
@@ -126,7 +116,7 @@ class Vimeo_Importer_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Vimeo_Importer::VERSION );
+			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), self::VERSION );
 		}
 
 	}
@@ -146,7 +136,7 @@ class Vimeo_Importer_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		}
 
 	}
@@ -171,8 +161,8 @@ class Vimeo_Importer_Admin {
 		 *   For reference: http://codex.wordpress.org/Roles_and_Capabilities
 		 */
 		$this->plugin_screen_hook_suffix = add_options_page(
-			__( 'Vimeo Importer', $this->plugin_slug ),
-			__( 'Vimeo Importer', $this->plugin_slug ),
+			'Vimeo Importer',
+			'Vimeo Importer',
 			'manage_options',
 			$this->plugin_slug,
 			array( $this, 'admin_options_page' )
@@ -191,6 +181,7 @@ class Vimeo_Importer_Admin {
 		$options = get_option( 'Vimeo_Importer' );
 
 		if ( isset( $_POST['options_submit'] ) ) {
+
 			// Form submitted
 			$new_options['app_id'] = esc_attr( $_POST['app_id'] );
 			$new_options['app_secret'] = esc_attr( $_POST['app_secret'] );
@@ -265,8 +256,8 @@ class Vimeo_Importer_Admin {
 
 			$this->add_thick_box();
 
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Vimeo_Importer::VERSION );
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Vimeo_Importer::VERSION );
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), self::VERSION );
 		}
 
 	}
