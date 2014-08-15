@@ -6,7 +6,8 @@
 		var config = {
 				api: {
 					url: '/wp-content/plugins/vimeo-importer/api/',
-					endpoint: 'videos',
+					search: 'videos',
+					create: 'create',
 					per_page: 10
 				},
 				container: '.js-vimeo-importer',
@@ -41,6 +42,9 @@
 							text: 'Import selected'
 						}
 					}
+				},
+				feedback: {
+					id: 'vimeo-importer-feedback'
 				}
 			},
 			dom = {},
@@ -52,8 +56,9 @@
 						'</form>',
 
 			results = '<div id="' + config.results.id + '"></div>',
+			feedback = '<div id="' + config.feedback.id + '"></div>',
 
-			thickboxHtml = '<div id="' + config.thickbox.id + '"><div class="' + config.thickbox.classes + '">' + searchForm + results + '</div></div>',
+			thickboxHtml = '<div id="' + config.thickbox.id + '"><div class="' + config.thickbox.classes + '">' + searchForm + results + feedback + '</div></div>',
 			buttonHtml = '<a title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
 
 		$(config.container).append(thickboxHtml + buttonHtml);
@@ -61,6 +66,7 @@
 		dom.form = $('#' + config.form.id);
 		dom.submit = $('[type="submit"]', dom.form);
 		dom.results = $('#' + config.results.id);
+		dom.feedback = $('#' + config.feedback.id);
 		dom.search = $('input[name="' + config.form.search + '"]', dom.form);
 
 		dom.form.submit(function (event) {
@@ -75,7 +81,7 @@
 			$.ajax({
 				url: config.api.url,
 				data: {
-					endpoint: config.api.endpoint,
+					endpoint: config.api.search,
 					per_page: config.api.per_page,
 					name: query
 				}
@@ -85,7 +91,7 @@
 				dom.submit.removeAttr('disabled');
 
 				if (response.body.error) {
-					showError(response.body.error);
+					showError(response.body.error, dom.results);
 				} else {
 					showResults(response.body);
 				}
@@ -119,19 +125,56 @@
 			dom.resultsForm.submit(function (event) {
 				event.preventDefault();
 
-				// Get Vimeo ids
-				var ids = [];
+				// Loop selected videos
+				var videos = [];
 				$('input[name="' + config.results.checkboxes + '[]"]:checked').each(function() {
-					ids.push($(this).val());
+					id = $(this).val();
+
+					// Find data object from id
+					$.each(results.data, function(i, result) {
+						if (id === result.uri.split('/')[2]) {
+							// Store required data
+							var obj = {
+								dsv_vimeo_id: id,
+								post_title: result.name,
+								dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + id + '.jpg',
+								dsv_vimeo_link: 'vimeo.com/' + id
+							};
+							videos.push(obj);
+						}
+					});
 				});
 
-				console.log(ids);
+				$.ajax({
+					type: 'POST',
+					url: config.api.url,
+					data: {
+						endpoint: config.api.create,
+						videos: videos
+					}
+				})
+				.done(function (response) {
+					if (response.body.error) {
+						showError(response.body.error, dom.feedback);
+					} else {
+						var i = 0,
+							length = response.body.data.length,
+							feedbackHtml = '';
+
+						for (i; i < length; i++) {
+							var video = response.body.data[i];
+							feedbackHtml += '<li><strong>' + video.id + '<strong>: ' + video.status + '</li>';
+						}
+
+						dom.feedback.html('<p>Feedback</p><ol>' + feedbackHtml + '</ol>');
+					}
+				});
 			});
 		},
 
-		showError = function (error) {
-			var errorHtml ='<p><strong>Error:</strong> ' + response.body.error + '</p>';
-			dom.results.html(errorHtml);
+		showError = function (error, el) {
+			var errorHtml ='<p><strong>Error:</strong> ' + error + '</p>';
+			el.html(errorHtml);
 		};
 
 	});

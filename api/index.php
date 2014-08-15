@@ -241,7 +241,10 @@ class Vimeo_Importer_Api {
 			switch ( $this->_endpoint ) {
 
 				case 'create':
-					$data = $this->create_videos();
+					$data = array(
+						'body' => array ( 'data' => $this->create_videos() ),
+						'status' => 200
+					);
 					break;
 
 				default:
@@ -281,7 +284,7 @@ class Vimeo_Importer_Api {
 	 */
 	private function create_videos () {
 
-		$videos = array();
+		$response = array();
 
 		foreach ( $_POST['videos'] as $video ) {
 
@@ -309,7 +312,7 @@ class Vimeo_Importer_Api {
 				}
 
 				// Video created
-				array_push( $videos, array(
+				array_push( $response, array(
 					'id' => $post_id,
 					'status' => 'created'
 				) );
@@ -317,7 +320,7 @@ class Vimeo_Importer_Api {
 			} else {
 
 				// Video not created
-				array_push( $videos, array(
+				array_push( $response, array(
 					'id' => $id_query->posts[0]->ID,
 					'status' => 'exists'
 				) );
@@ -326,7 +329,7 @@ class Vimeo_Importer_Api {
 
 		}
 
-		return $videos;
+		return $response;
 
 	}
 
