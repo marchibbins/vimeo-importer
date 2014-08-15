@@ -60,10 +60,10 @@ class Vimeo_Importer_Api {
 		)
 	);
 
-    private $_endpoint = null;
-    private $_params = null;
-    private $_options = null;
-    private $_vimeo = null;
+	private $_endpoint = null;
+	private $_params = null;
+	private $_options = null;
+	private $_vimeo = null;
 
 	/**
 	 * Return an instance of this class.
@@ -228,7 +228,7 @@ class Vimeo_Importer_Api {
 	 */
 	private function get_data() {
 
-		if ( self::$endpoints[$this->_endpoint]['resource'] == 'vimeo' ) {
+		if ( self::$endpoints[$this->_endpoint]['resource'] === 'vimeo' ) {
 
 			// Requests for Vimeo API
 			$url = self::$endpoints[$this->_endpoint]['url'] . $this->_params;
@@ -284,22 +284,46 @@ class Vimeo_Importer_Api {
 		$videos = array();
 
 		foreach ( $_POST['videos'] as $video ) {
-			// Basic CPT object
-			$post_id = wp_insert_post( array(
-				'post_title' => $video['post_title'],
-				'post_status' => 'publish',
-				'post_type' => 'dsv_video'
+
+			// Check whether video already exists
+			$id_query = new WP_Query( array(
+				'post_type' => 'dsv_video',
+				'meta_key' => 'dsv_vimeo_id',
+				'meta_value' => $video['dsv_vimeo_id']
 			) );
 
-			// Custom fields
-			foreach ( $video as $key => $value ) {
-				if ( strpos( $key, 'dsv_' ) > -1) {
-					add_post_meta( $post_id, $key, $value );
+			if ( $id_query->post_count === 0 ) {
+
+				// Basic CPT object
+				$post_id = wp_insert_post( array(
+					'post_type' => 'dsv_video',
+					'post_status' => 'publish',
+					'post_title' => $video['post_title']
+				) );
+
+				// Custom fields, duplicate anything POSTed that starts with 'dsv_'
+				foreach ( $video as $key => $value ) {
+					if ( strpos( $key, 'dsv_' ) > -1) {
+						add_post_meta( $post_id, $key, $value );
+					}
 				}
+
+				// Video created
+				array_push( $videos, array(
+					'id' => $post_id,
+					'status' => 'created'
+				) );
+
+			} else {
+
+				// Video not created
+				array_push( $videos, array(
+					'id' => $id_query->posts[0]->ID,
+					'status' => 'exists'
+				) );
+
 			}
 
-			// Collect IDs for now
-			array_push( $videos, $post_id );
 		}
 
 		return $videos;
