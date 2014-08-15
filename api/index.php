@@ -45,11 +45,18 @@ class Vimeo_Importer_Api {
 	protected static $endpoints = array(
 		'albums' => array(
 			'method' => 'GET',
+			'resource' => 'vimeo',
 			'url' => '/me/albums'
 		),
 		'videos' => array(
 			'method' => 'GET',
+			'resource' => 'vimeo',
 			'url' => '/me/videos'
+		),
+		'create' => array(
+			'method' => 'POST',
+			'resource' => 'wordpress',
+			'url' => null
 		)
 	);
 
@@ -120,9 +127,7 @@ class Vimeo_Importer_Api {
 			);
 		}
 
-		$this->_endpoint = self::$endpoints[$this->_endpoint];
-
-		if ( $this->_endpoint['method'] !== $_SERVER['REQUEST_METHOD'] ) {
+		if ( self::$endpoints[$this->_endpoint]['method'] !== $_SERVER['REQUEST_METHOD'] ) {
 			$this->return_json(
 				array(
 					'body' => array( 'error' => 'Method not allowed for endpoint' ),
@@ -217,16 +222,39 @@ class Vimeo_Importer_Api {
 	}
 
 	/**
-	 * Perform Vimeo API request.
+	 * Perform the request.
 	 *
 	 * @since     1.0.0
 	 */
 	private function get_data() {
 
-		$url = $this->_endpoint['url'] . $this->_params;
-		$data = $this->_vimeo->request( $url );
+		if ( self::$endpoints[$this->_endpoint]['resource'] == 'vimeo' ) {
 
-		$this->return_json( $data );
+			// Requests for Vimeo API
+			$url = self::$endpoints[$this->_endpoint]['url'] . $this->_params;
+			$data = $this->_vimeo->request( $url );
+			$this->return_json( $data );
+
+		} else {
+
+			// Requests for Wordpress
+			switch ( $this->_endpoint ) {
+
+				case 'create':
+					$data = $this->create_videos();
+					break;
+
+				default:
+					$data = array(
+						'body' => array( 'error' => 'Not implemented' ),
+						'status' => 501
+					);
+					break;
+			}
+
+			$this->return_json( $data );
+
+		}
 
 	}
 
@@ -234,8 +262,6 @@ class Vimeo_Importer_Api {
 	 * Set Content type and encode data as JSON.
 	 *
 	 * @since     1.0.0
-	 *
-	 * @return    object    A single instance of this class.
 	 */
 	private function return_json ( $data ) {
 
@@ -243,6 +269,40 @@ class Vimeo_Importer_Api {
 		echo json_encode( $data );
 
 		die;
+
+	}
+
+	/**
+	 * Creates Video CTPs from POST data.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    array    Inserted Videos CPT ids.
+	 */
+	private function create_videos () {
+
+		$videos = array();
+
+		foreach ( $_POST['videos'] as $video ) {
+			// Basic CPT object
+			$post_id = wp_insert_post( array(
+				'post_title' => $video['post_title'],
+				'post_status' => 'publish',
+				'post_type' => 'dsv_video'
+			) );
+
+			// Custom fields
+			foreach ( $video as $key => $value ) {
+				if ( strpos( $key, 'dsv_' ) > -1) {
+					add_post_meta( $post_id, $key, $value );
+				}
+			}
+
+			// Collect IDs for now
+			array_push( $videos, $post_id );
+		}
+
+		return $videos;
 
 	}
 
