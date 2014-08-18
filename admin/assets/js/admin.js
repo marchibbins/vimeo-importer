@@ -91,8 +91,8 @@
 				// Enable form
 				dom.submit.removeAttr('disabled');
 
-				if (response.body.error) {
-					showError(response.body.error, dom.results);
+				if (!response.body || response.body.error) {
+					showError(response, dom.results);
 				} else {
 					showResults(response.body);
 				}
@@ -166,8 +166,8 @@
 					dom.submit.removeAttr('disabled');
 					dom.import.removeAttr('disabled');
 
-					if (response.body.error) {
-						showError(response.body.error, dom.feedback);
+					if (!response.body || response.body.error) {
+						showError(response, dom.feedback);
 					} else {
 						var i = 0,
 							length = response.body.data.length,
@@ -188,8 +188,9 @@
 			});
 		},
 
-		showError = function (error, el) {
-			var errorHtml ='<p><strong>Error:</strong> ' + error + '</p>';
+		showError = function (response, el) {
+			var error = response.body && response.body.error ? response.body.error : 'Something went wrong.',
+				errorHtml ='<p><strong>Error:</strong> ' + error + '</p>';
 			el.html(errorHtml);
 		};
 
