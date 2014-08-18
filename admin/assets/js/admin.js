@@ -164,9 +164,9 @@
 
 						for (i; i < length; i++) {
 							var video = response.body.data[i];
-							feedbackHtml += '<li>Video <strong>' + video.id + '<strong>: ' + video.status;
-							if (video.image) {
-								feedbackHtml += '<ul><li>Image: ' + video.image + '</li></ul>';
+							feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status;
+							if (video.image.id) {
+								feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '</li></ul>';
 							}
 							feedbackHtml += '</li>';
 						}

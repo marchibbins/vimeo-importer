@@ -312,6 +312,9 @@ class Vimeo_Importer_Api {
 
 		// Image
 		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id );
+		if ( $image['message'] === 'success' ) {
+			set_post_thumbnail( $post_id, $image['id'] );
+		}
 
 		// Custom fields, add anything POSTed that starts with 'dsv_'
 		foreach ( $obj as $key => $value ) {
@@ -366,11 +369,16 @@ class Vimeo_Importer_Api {
 			$attach_data = wp_generate_attachment_metadata( $attach_id, $full_path );
 			wp_update_attachment_metadata( $attach_id,  $attach_data );
 
-			return 'success';
+			return array(
+				'id' => $attach_id,
+				'message' => 'success'
+			);
 
 		} catch (Exception $e) {
 
-			return $e->getMessage();
+			return array(
+				'message' => $e->getMessage()
+			);
 
 		}
 
