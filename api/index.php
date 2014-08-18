@@ -307,7 +307,8 @@ class Vimeo_Importer_Api {
 		$post_id = wp_insert_post( array(
 			'post_type' => 'dsv_video',
 			'post_status' => 'publish',
-			'post_title' => $obj['post_title']
+			'post_title' => $obj['post_title'],
+			'post_content' => $obj['post_content']
 		) );
 
 		// Image
