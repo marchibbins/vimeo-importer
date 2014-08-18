@@ -130,6 +130,7 @@
 				// Disable form
 				dom.submit.attr('disabled', 'disabled');
 				dom.import.attr('disabled', 'disabled');
+				dom.feedback.html('<p>Waiting for Vimeo...</p>');
 
 				// Loop selected videos
 				var videos = [];
