@@ -34,6 +34,7 @@ class Vimeo_Importer_Api {
 		'albums' => array(
 			'method' => 'GET',
 			'resource' => 'vimeo',
+			'fields' => 'uri,name',
 			'url' => '/me/albums'
 		),
 		'videos' => array(

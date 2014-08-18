@@ -120,7 +120,8 @@ class Vimeo
         $curl_opt_defaults = array(
             CURLOPT_HEADER => 1,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30);
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => false);
 
         //  Can't use array_merge since it would reset the numbering to 0 and lose the CURLOPT constant values.
         //  Insetad we find the overwritten ones and manually merge.
