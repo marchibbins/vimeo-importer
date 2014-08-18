@@ -18,45 +18,27 @@
 class Vimeo_Importer_Admin {
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
 	 */
 	const VERSION = '1.0.0';
 
 	/**
 	 * Instance of this class.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      object
 	 */
 	protected static $instance = null;
 
 	/**
 	 * Unique identifier for your plugin.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      string
 	 */
 	protected $plugin_slug = 'vimeo-importer';
 
 	/**
 	 * Slug of the plugin screen.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      string
 	 */
 	protected $plugin_screen_hook_suffix = null;
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
 	 * settings page and menu.
-	 *
-	 * @since     1.0.0
 	 */
 	private function __construct() {
 
@@ -86,10 +68,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Return an instance of this class.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    object    A single instance of this class.
 	 */
 	public static function get_instance() {
 
@@ -103,10 +81,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Register and enqueue admin-specific style sheet.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_styles() {
 
@@ -123,10 +97,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Register and enqueue admin-specific JavaScript.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_scripts() {
 
@@ -143,22 +113,11 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
-	 *
-	 * @since    1.0.0
 	 */
 	public function add_plugin_admin_menu() {
 
 		/*
 		 * Add a settings page for this plugin to the Settings menu.
-		 *
-		 * NOTE:  Alternative menu locations are available via WordPress administration menu functions.
-		 *
-		 *        Administration Menus: http://codex.wordpress.org/Administration_Menus
-		 *
-		 * @TODO:
-		 *
-		 * - Change 'manage_options' to the capability you see fit
-		 *   For reference: http://codex.wordpress.org/Roles_and_Capabilities
 		 */
 		$this->plugin_screen_hook_suffix = add_options_page(
 			'Vimeo Importer',
@@ -172,8 +131,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Render the settings page for this plugin.
-	 *
-	 * @since    1.0.0
 	 */
 	public function admin_options_page() {
 
@@ -205,8 +162,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Add settings action link to the plugins page.
-	 *
-	 * @since    1.0.0
 	 */
 	public function add_action_links( $links ) {
 
@@ -221,8 +176,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Add the Vimeo Importer meta box on supported posts add/edit screen.
-	 *
-	 * @since    1.0.0
 	 */
 	public function add_meta_boxes() {
 
@@ -234,8 +187,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Add Thickbox script and styles.
-	 *
-	 * @since    1.0.0
 	 */
 	public function add_thick_box() {
 
@@ -246,12 +197,11 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Load admin Javascript on supported posts add/edit screen.
-	 *
-	 * @since    1.0.0
 	 */
 	public function admin_head() {
 
 		global $post_type;
+
 		if ( in_array($post_type, $this->get_supported_post_types()) ) {
 
 			$this->add_thick_box();
@@ -264,8 +214,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Callback for the meta box, container for everything added by Javascript.
-	 *
-	 * @since    1.0.0
 	 */
 	public function get_meta_box() {
 
@@ -277,13 +225,6 @@ class Vimeo_Importer_Admin {
 
 	/**
 	 * Get the post types that can display the Vimeo Importer
-	 *
-	 * @since    1.0.0
-	 *
-	 * @param 	 boolean    $details    Whether to return the entire object for each post type,
-	 *                                  if false only an array of names will be returned.
-	 *
-	 * @return   array
 	 */
 	public function get_supported_post_types( $details = false ) {
 

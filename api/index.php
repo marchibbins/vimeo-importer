@@ -19,28 +19,16 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
 	 */
 	const VERSION = '1.0.0';
 
 	/**
 	 * Instance of this class.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      object
 	 */
 	protected static $instance = null;
 
 	/**
 	 * Only support a limited number of endpoints, with specific methods.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      array
 	 */
 	protected static $endpoints = array(
 		'albums' => array(
@@ -67,10 +55,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Return an instance of this class.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    object    A single instance of this class.
 	 */
 	public static function get_instance () {
 
@@ -85,8 +69,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Make it so.
-	 *
-	 * @since     1.0.0
 	 */
 	private function __construct () {
 
@@ -104,8 +86,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Check that endpoint is specified and allowed.
-	 *
-	 * @since     1.0.0
 	 */
 	private function check_endpoint () {
 
@@ -142,8 +122,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Load Wordpress hooks, etc. Presumably this isn't the right way.
-	 *
-	 * @since     1.0.0
 	 */
 	private function init_wordpress () {
 
@@ -154,8 +132,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Check that Wordpress and Vimeo settings are configured.
-	 *
-	 * @since     1.0.0
 	 */
 	private function check_configuration () {
 
@@ -201,8 +177,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Initialise Vimeo library.
-	 *
-	 * @since     1.0.0
 	 */
 	private function init_vimeo () {
 
@@ -218,8 +192,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Create querystring from REQUEST params, excluding endpoint.
-	 *
-	 * @since     1.0.0
 	 */
 	private function get_params () {
 
@@ -235,8 +207,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Perform the request.
-	 *
-	 * @since     1.0.0
 	 */
 	private function get_data () {
 
@@ -275,8 +245,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Set Content type and encode data as JSON.
-	 *
-	 * @since     1.0.0
 	 */
 	private function return_json ( $data ) {
 
@@ -289,10 +257,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Create video posts or report if already imported.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    array    Feedback on videos, created/exists by id.
 	 */
 	private function create_videos () {
 
@@ -336,12 +300,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Inserts Video CPT from data.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param 	  object    $obj    Data from POST to create CPT.
-	 *
-	 * @return    array     Inserted post ID and image uploade status.
 	 */
 	private function create_video_post ( $obj ) {
 
@@ -371,14 +329,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Inserts media attachment with video holding image.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param 	  object    $string    Image URL.
-	 *
-	 * @param 	  object    $int       Post ID to attach image to.
-	 *
-	 * @return    string    Success or error message.
 	 */
 	private function create_image_post ( $image_url, $post_id ) {
 
@@ -428,10 +378,6 @@ class Vimeo_Importer_Api {
 
 	/**
 	 * Fetch Image from URL with Curl.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param 	  string    $url    Image URL.
 	 */
 	private function fetch_image ( $url ) {
 
