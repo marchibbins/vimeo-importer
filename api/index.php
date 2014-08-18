@@ -39,6 +39,7 @@ class Vimeo_Importer_Api {
 		'videos' => array(
 			'method' => 'GET',
 			'resource' => 'vimeo',
+			'fields' => 'uri,name,description',
 			'url' => '/me/videos'
 		),
 		'create' => array(
@@ -201,6 +202,10 @@ class Vimeo_Importer_Api {
 			if ( $key !== 'endpoint' ) {
 				$this->_params .= $key . '=' . $value . '&';
 			}
+		}
+
+		if ( isset( self::$endpoints[$this->_endpoint]['fields'] ) ) {
+			$this->_params .= 'fields=' . self::$endpoints[$this->_endpoint]['fields'];
 		}
 
 	}
