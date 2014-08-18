@@ -72,7 +72,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @return    object    A single instance of this class.
 	 */
-	public static function get_instance() {
+	public static function get_instance () {
 
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
@@ -88,7 +88,9 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 */
-	private function __construct() {
+	private function __construct () {
+
+		$this->init_wordpress();
 
 		$this->check_endpoint();
 		$this->check_configuration();
@@ -105,7 +107,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 */
-	private function check_endpoint() {
+	private function check_endpoint () {
 
 		if ( !isset( $_REQUEST['endpoint'] ) ) {
 			$this->return_json(
@@ -139,13 +141,23 @@ class Vimeo_Importer_Api {
 	}
 
 	/**
+	 * Load Wordpress hooks, etc. Presumably this isn't the right way.
+	 *
+	 * @since     1.0.0
+	 */
+	private function init_wordpress () {
+
+		require_once( '../../../../wp-load.php' );
+		require_once( '../../../../wp-admin/includes/image.php' );
+
+	}
+
+	/**
 	 * Check that Wordpress and Vimeo settings are configured.
 	 *
 	 * @since     1.0.0
 	 */
-	private function check_configuration() {
-
-		include_once( '../../../../wp-load.php' );
+	private function check_configuration () {
 
 		$this->_options = get_option( 'Vimeo_Importer' );
 
@@ -192,7 +204,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 */
-	private function init_vimeo() {
+	private function init_vimeo () {
 
 		include_once( 'includes/vimeo.php' );
 
@@ -209,7 +221,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 */
-	private function get_params() {
+	private function get_params () {
 
 		$this->_params = '?';
 
@@ -226,7 +238,7 @@ class Vimeo_Importer_Api {
 	 *
 	 * @since     1.0.0
 	 */
-	private function get_data() {
+	private function get_data () {
 
 		if ( self::$endpoints[$this->_endpoint]['resource'] === 'vimeo' ) {
 
@@ -242,7 +254,7 @@ class Vimeo_Importer_Api {
 
 				case 'create':
 					$data = array(
-						'body' => array ( 'data' => $this->create_videos() ),
+						'body' => array( 'data' => $this->create_videos() ),
 						'status' => 200
 					);
 					break;
@@ -276,7 +288,7 @@ class Vimeo_Importer_Api {
 	}
 
 	/**
-	 * Creates Video CTPs from POST data.
+	 * Create video posts or report if already imported.
 	 *
 	 * @since     1.0.0
 	 *
@@ -297,23 +309,12 @@ class Vimeo_Importer_Api {
 
 			if ( $id_query->post_count === 0 ) {
 
-				// Basic CPT object
-				$post_id = wp_insert_post( array(
-					'post_type' => 'dsv_video',
-					'post_status' => 'publish',
-					'post_title' => $video['post_title']
-				) );
-
-				// Custom fields, add anything POSTed that starts with 'dsv_'
-				foreach ( $video as $key => $value ) {
-					if ( strpos( $key, 'dsv_' ) > -1) {
-						add_post_meta( $post_id, $key, $value );
-					}
-				}
+				$post = $this->create_video_post($video);
 
 				// Video created
 				array_push( $response, array(
-					'id' => $post_id,
+					'id' => $post['id'],
+					'image' => $post['image'],
 					'status' => 'created'
 				) );
 
@@ -330,6 +331,117 @@ class Vimeo_Importer_Api {
 		}
 
 		return $response;
+
+	}
+
+	/**
+	 * Inserts Video CPT from data.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param 	  object    $obj    Data from POST to create CPT.
+	 *
+	 * @return    array     Inserted post ID and image uploade status.
+	 */
+	private function create_video_post ( $obj ) {
+
+		// Basic CPT object
+		$post_id = wp_insert_post( array(
+			'post_type' => 'dsv_video',
+			'post_status' => 'publish',
+			'post_title' => $obj['post_title']
+		) );
+
+		// Image
+		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id );
+
+		// Custom fields, add anything POSTed that starts with 'dsv_'
+		foreach ( $obj as $key => $value ) {
+			if ( strpos( $key, 'dsv_' ) > -1) {
+				add_post_meta( $post_id, $key, $value );
+			}
+		}
+
+		return array(
+			'id' => $post_id,
+			'image' => $image
+		);
+
+	}
+
+	/**
+	 * Inserts media attachment with video holding image.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param 	  object    $string    Image URL.
+	 *
+	 * @param 	  object    $int       Post ID to attach image to.
+	 *
+	 * @return    string    Success or error message.
+	 */
+	private function create_image_post ( $image_url, $post_id ) {
+
+		$uploads = wp_upload_dir();
+		$filename = wp_unique_filename( $uploads['path'], basename($image_url) );
+
+		$wp_filetype = wp_check_filetype( $filename, null );
+		$full_path = $uploads['path'] . '/' . $filename;
+
+		try {
+
+			if ( !substr_count($wp_filetype['type'], 'image') ) {
+				throw new Exception( '"' . basename($image_url) . '" is not a valid image. ' . $wp_filetype['type'] );
+			}
+
+			$image_string = $this->fetch_image($image_url);
+
+			$file_saved = file_put_contents($full_path, $image_string);
+			if ( !$file_saved ) {
+				throw new Exception('The file cannot be saved.');
+			}
+
+			$attachment = array(
+				'post_mime_type' => $wp_filetype['type'],
+				'post_title' => preg_replace('/\.[^.]+$/', '', $filename),
+				'post_status' => 'inherit',
+				'guid' => $uploads['url'] . '/' . $filename
+			);
+
+			$attach_id = wp_insert_attachment( $attachment, $full_path, $post_id );
+			if ( !$attach_id ) {
+				throw new Exception('Failed to save record into database.');
+			}
+
+			$attach_data = wp_generate_attachment_metadata( $attach_id, $full_path );
+			wp_update_attachment_metadata( $attach_id,  $attach_data );
+
+			return 'success';
+
+		} catch (Exception $e) {
+
+			return $e->getMessage();
+
+		}
+
+	}
+
+	/**
+	 * Fetch Image from URL with Curl.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param 	  string    $url    Image URL.
+	 */
+	private function fetch_image ( $url ) {
+
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		$image = curl_exec($curl);
+		curl_close($curl);
+
+		return $image;
 
 	}
 

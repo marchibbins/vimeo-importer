@@ -75,6 +75,7 @@
 			// Disable form
 			dom.submit.attr('disabled', 'disabled');
 			dom.results.html('<p>Waiting for Vimeo...</p>');
+			dom.feedback.html('');
 
 			// Get query
 			var query = dom.search.val();
@@ -163,7 +164,11 @@
 
 						for (i; i < length; i++) {
 							var video = response.body.data[i];
-							feedbackHtml += '<li><strong>' + video.id + '<strong>: ' + video.status + '</li>';
+							feedbackHtml += '<li>Video <strong>' + video.id + '<strong>: ' + video.status;
+							if (video.image) {
+								feedbackHtml += '<ul><li>Image: ' + video.image + '</li></ul>';
+							}
+							feedbackHtml += '</li>';
 						}
 
 						dom.feedback.html('<p>Feedback</p><ol>' + feedbackHtml + '</ol>');
