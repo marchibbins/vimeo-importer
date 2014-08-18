@@ -122,9 +122,14 @@
 
 			dom.results.html(total + form);
 			dom.resultsForm = $('#' + config.results.form.id);
+			dom.import = $('[type="submit"]', dom.resultsForm);
 
 			dom.resultsForm.submit(function (event) {
 				event.preventDefault();
+
+				// Disable form
+				dom.submit.attr('disabled', 'disabled');
+				dom.import.attr('disabled', 'disabled');
 
 				// Loop selected videos
 				var videos = [];
@@ -155,6 +160,10 @@
 					}
 				})
 				.done(function (response) {
+					// Enable form
+					dom.submit.removeAttr('disabled');
+					dom.import.removeAttr('disabled');
+
 					if (response.body.error) {
 						showError(response.body.error, dom.feedback);
 					} else {
@@ -164,9 +173,9 @@
 
 						for (i; i < length; i++) {
 							var video = response.body.data[i];
-							feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status;
-							if (video.image.id) {
-								feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '</li></ul>';
+							feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
+							if (video.image) {
+								feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
 							}
 							feedbackHtml += '</li>';
 						}
