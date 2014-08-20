@@ -27,6 +27,7 @@
 					classes: 'search-box',
 					label: 'Search for videos',
 					search: 's',
+					page: 'p',
 					button: {
 						classes: 'button',
 						text: 'Search'
@@ -40,6 +41,10 @@
 						button: {
 							classes: 'button button-primary',
 							text: 'Import selected'
+						},
+						pagination: {
+							previous: 'vimeo-importer-results-previous',
+							next: 'vimeo-importer-results-next'
 						}
 					}
 				},
@@ -52,6 +57,7 @@
 			searchForm = '<form id="' + config.form.id + '" class="' + config.form.classes + '">' +
 							'<label class="screen-reader-text" for="vimeo-importer-search">' + config.form.label + ':</label>' +
 							'<input type="search" id="vimeo-importer-search" name="' + config.form.search + '">' +
+							'<input type="hidden" name="' + config.form.page + '" value="1">' +
 							'<input type="submit" class="' + config.form.button.classes + '" value="' + config.form.button.text + '">' +
 						'</form>',
 
@@ -68,6 +74,11 @@
 		dom.results = $('#' + config.results.id);
 		dom.feedback = $('#' + config.feedback.id);
 		dom.search = $('input[name="' + config.form.search + '"]', dom.form);
+		dom.page = $('input[name="' + config.form.page + '"]', dom.form);
+
+		dom.search.change(function (event) {
+			dom.page.val(1);
+		});
 
 		dom.form.submit(function (event) {
 			event.preventDefault();
@@ -78,13 +89,15 @@
 			dom.feedback.html('');
 
 			// Get query
-			var query = dom.search.val();
+			var query = dom.search.val(),
+				page = dom.page.val();
 
 			$.ajax({
 				url: config.api.url,
 				data: {
 					endpoint: config.api.search,
 					per_page: config.api.per_page,
+					page: page,
 					name: query
 				}
 			})
@@ -103,7 +116,9 @@
 		var showResults = function (results) {
 			var i = 0,
 				length = results.data.length,
-				resultsHtml = '';
+				resultsHtml = '',
+				previous = results.paging.previous,
+				next = results.paging.next;
 
 			// Video checkboxes
 			for (i; i < length; i++) {
@@ -115,9 +130,22 @@
 								'<br>';
 			}
 
+			// Pagination
+			var pagination = '';
+			if (previous) {
+				pagination += '<a id="' + config.results.form.pagination.previous +'" href data-page="'+ previous + '">Previous</a> ';
+				if (next) {
+					pagination += '| ';
+				}
+			}
+			if (next) {
+				pagination += '<a id="' + config.results.form.pagination.next +'" href data-page="'+ next + '">Next</a>';
+			}
+
 			// Results form
 			var form = '<form id="' + config.results.form.id + '">' +
 							resultsHtml +
+							'<p>' + pagination + '</p>' +
 							'<p><input type="submit" class="' + config.results.form.button.classes + '" value="' + config.results.form.button.text + '"></p>' +
 						'</form>',
 
@@ -125,7 +153,21 @@
 
 			dom.results.html(total + form);
 			dom.resultsForm = $('#' + config.results.form.id);
+			dom.previous = $('#' + config.results.form.pagination.previous, dom.resultsForm);
+			dom.next = $('#' + config.results.form.pagination.next, dom.resultsForm);
 			dom.import = $('[type="submit"]', dom.resultsForm);
+
+			dom.previous.click(function (event) {
+				event.preventDefault();
+				dom.page.val(parseInt(dom.page.val(), 10) - 1);
+				dom.form.submit();
+			});
+
+			dom.next.click(function (event) {
+				event.preventDefault();
+				dom.page.val(parseInt(dom.page.val(), 10) + 1);
+				dom.form.submit();
+			});
 
 			dom.resultsForm.submit(function (event) {
 				event.preventDefault();
