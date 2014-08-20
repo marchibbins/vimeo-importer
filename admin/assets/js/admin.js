@@ -7,6 +7,7 @@
 				api: {
 					url: '/wp-content/plugins/vimeo-importer/api/',
 					search: 'videos',
+					albums: 'albums',
 					create: 'create',
 					per_page: 10
 				},
@@ -60,9 +61,26 @@
 						}
 					}
 				},
+				albums: {
+					id: 'vimeo-importer-albums',
+					checkboxes: 'albums',
+					form: {
+						id: 'vimeo-importer-albums-form',
+						page: 'p',
+						button: {
+							classes: 'button button-primary',
+							text: 'Import selected'
+						},
+						pagination: {
+							previous: 'vimeo-importer-albums-previous',
+							next: 'vimeo-importer-albums-next'
+						}
+					}
+				},
 				feedback: {
 					id: 'vimeo-importer-feedback'
-				}
+				},
+				waiting: 'Waiting for Vimeo...'
 			},
 			dom = {};
 
@@ -91,7 +109,9 @@
 										feedback +
 									'</div>' +
 									'<div id="' + config.tabs.albums.id + '">' +
-										'Albums' +
+										'<div id="' + config.albums.id + '">' +
+											'<p>' + config.waiting + '</p>' +
+										'</div>' +
 									'</div>' +
 								'</div>' +
 							'</div>',
@@ -113,6 +133,7 @@
 			dom.submit.click(submitClick);
 
 			dom.results = $('#' + config.results.id);
+			dom.albums = $('#' + config.albums.id);
 			dom.feedback = $('#' + config.feedback.id);
 		},
 
@@ -182,13 +203,13 @@
 			// Pagination
 			var pagination = '';
 			if (previous) {
-				pagination += '<a id="' + config.results.form.pagination.previous +'" href data-page="'+ previous + '">Previous</a> ';
+				pagination += '<a id="' + config.results.form.pagination.previous +'" href data-page="' + previous + '">Previous</a> ';
 				if (next) {
 					pagination += '| ';
 				}
 			}
 			if (next) {
-				pagination += '<a id="' + config.results.form.pagination.next +'" href data-page="'+ next + '">Next</a>';
+				pagination += '<a id="' + config.results.form.pagination.next +'" href data-page="' + next + '">Next</a>';
 			}
 
 			// Results form
@@ -202,12 +223,12 @@
 
 			dom.results.html(total + form);
 			dom.resultsForm = $('#' + config.results.form.id);
-			dom.previous = $('#' + config.results.form.pagination.previous, dom.resultsForm);
-			dom.next = $('#' + config.results.form.pagination.next, dom.resultsForm);
+			dom.resultsPrevious = $('#' + config.results.form.pagination.previous, dom.resultsForm);
+			dom.resultsNext = $('#' + config.results.form.pagination.next, dom.resultsForm);
 			dom.import = $('[type="submit"]', dom.resultsForm);
 
-			dom.previous.click(pageResults);
-			dom.next.click(pageResults);
+			dom.resultsPrevious.click(pageResults);
+			dom.resultsNext.click(pageResults);
 
 			dom.resultsForm.submit(results, importSubmit);
 		},
@@ -300,7 +321,7 @@
 			// Disable form
 			else {
 				dom.submit.attr('disabled', 'disabled');
-				dom.results.html('<p>Waiting for Vimeo...</p>');
+				dom.results.html('<p>' + config.waiting + '</p>');
 				dom.feedback.html('');
 			}
 		},
@@ -315,7 +336,7 @@
 			else {
 				dom.submit.attr('disabled', 'disabled');
 				dom.import.attr('disabled', 'disabled');
-				dom.feedback.html('<p>Waiting for Vimeo...</p>');
+				dom.feedback.html('<p>' + config.waiting + '</p>');
 			}
 		},
 
@@ -331,9 +352,91 @@
 
 			dom.tabs.removeClass('active');
 			el.addClass('active');
+		},
+
+		getAlbums = function () {
+			var page = dom.albumsPage ? dom.albumsPage.val() : 1;
+
+			$.ajax({
+				url: config.api.url,
+				data: {
+					endpoint: config.api.albums,
+					per_page: config.api.per_page,
+					page: page
+				}
+			})
+			.done(function (response) {
+				showAlbums(response.body);
+			});
+
+		},
+
+		showAlbums = function (albums) {
+			var i = 0,
+				length = albums.data.length,
+				albumsHtml = '',
+				previous = albums.paging.previous,
+				next = albums.paging.next,
+				page = dom.albumsPage ? dom.albumsPage.val() : 1;
+
+			// Video checkboxes
+			for (i; i < length; i++) {
+				var album = albums.data[i],
+					id = album.uri.split('/')[2];
+
+				albumsHtml += '<input type="checkbox" id="vimeo-importer-video-' + id + '" name="' + config.albums.checkboxes + '[]" value="' + id + '">' +
+								'<label for="vimeo-importer-video-' + id + '">' + album.name + '</label>' +
+								'<br>';
+			}
+
+			// Pagination
+			var pagination = '';
+			if (previous) {
+				pagination += '<a id="' + config.albums.form.pagination.previous +'" href data-page="' + previous + '">Previous</a> ';
+				if (next) {
+					pagination += '| ';
+				}
+			}
+			if (next) {
+				pagination += '<a id="' + config.albums.form.pagination.next +'" href data-page="' + next + '">Next</a>';
+			}
+
+			// Results form
+			var form = '<form id="' + config.albums.form.id + '">' +
+							albumsHtml +
+							'<p>' + pagination + '</p>' +
+							'<input type="hidden" name="' + config.albums.form.page + '" value="' + page + '">' +
+							'<p><input type="submit" class="' + config.albums.form.button.classes + '" value="' + config.albums.form.button.text + '"></p>' +
+						'</form>';
+
+			dom.albums.html('').append(form);
+			dom.albumsForm = $('#' + config.albums.form.id);
+			dom.albumsPage = $('input[name="' + config.albums.form.page + '"]', dom.albumsForm);
+			dom.albumsPrevious = $('#' + config.albums.form.pagination.previous, dom.albumsForm);
+			dom.albumsNext = $('#' + config.albums.form.pagination.next, dom.albumsForm);
+			dom.import = $('[type="submit"]', dom.albumsForm);
+
+			dom.albumsPrevious.click(pageAlbums);
+			dom.albumsNext.click(pageAlbums);
+		},
+
+		pageAlbums = function (event) {
+			event.preventDefault();
+
+			var direction = $(event.target).attr('id') == config.albums.form.pagination.previous ? 'previous' : 'next';
+			if (direction == 'previous') {
+				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) - 1);
+				getAlbums();
+			}
+			else if (direction == 'next') {
+				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) + 1);
+				getAlbums();
+			}
 		};
 
+		// Init
 		template();
+		getAlbums();
 
 	});
 
