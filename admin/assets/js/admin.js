@@ -109,9 +109,7 @@
 										feedback +
 									'</div>' +
 									'<div id="' + config.tabs.albums.id + '">' +
-										'<div id="' + config.albums.id + '">' +
-											'<p>' + config.waiting + '</p>' +
-										'</div>' +
+										'<div id="' + config.albums.id + '"></div>' +
 									'</div>' +
 								'</div>' +
 							'</div>',
@@ -356,6 +354,7 @@
 
 		getAlbums = function () {
 			var page = dom.albumsPage ? dom.albumsPage.val() : 1;
+			dom.albums.html('<p>' + config.waiting + '</p>');
 
 			$.ajax({
 				url: config.api.url,
