@@ -268,6 +268,14 @@ class Vimeo_Importer_Api {
 
 		$response = array();
 
+		if ( !isset ( $_POST['videos'] ) ) {
+
+			return array(
+				'message' => 'No videos created'
+			);
+
+		}
+
 		foreach ( $_POST['videos'] as $video ) {
 
 			// Check whether video already exists

@@ -79,6 +79,7 @@
 
 			// Get query
 			var query = dom.search.val();
+
 			$.ajax({
 				url: config.api.url,
 				data: {
@@ -104,6 +105,7 @@
 				length = results.data.length,
 				resultsHtml = '';
 
+			// Video checkboxes
 			for (i; i < length; i++) {
 				var result = results.data[i],
 					id = result.uri.split('/')[2];
@@ -113,6 +115,7 @@
 								'<br>';
 			}
 
+			// Results form
 			var form = '<form id="' + config.results.form.id + '">' +
 							resultsHtml +
 							'<p><input type="submit" class="' + config.results.form.button.classes + '" value="' + config.results.form.button.text + '"></p>' +
@@ -126,6 +129,11 @@
 
 			dom.resultsForm.submit(function (event) {
 				event.preventDefault();
+
+				// Minimum one video
+				if ($('input[name="' + config.results.checkboxes + '[]"]:checked').length === 0) {
+					return false;
+				}
 
 				// Disable form
 				dom.submit.attr('disabled', 'disabled');
@@ -173,13 +181,18 @@
 							length = response.body.data.length,
 							feedbackHtml = '';
 
-						for (i; i < length; i++) {
-							var video = response.body.data[i];
-							feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
-							if (video.image) {
-								feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
+						// Feedback info
+						if (length > 0) {
+							for (i; i < length; i++) {
+								var video = response.body.data[i];
+								feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
+								if (video.image) {
+									feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
+								}
+								feedbackHtml += '</li>';
 							}
-							feedbackHtml += '</li>';
+						} else if (response.body.data.message) {
+							feedbackHtml += '<li>' + response.body.data.message + '.';
 						}
 
 						dom.feedback.html('<p>Feedback</p><ol>' + feedbackHtml + '</ol>');
