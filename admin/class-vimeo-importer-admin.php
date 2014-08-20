@@ -180,7 +180,7 @@ class Vimeo_Importer_Admin {
 	public function add_meta_boxes() {
 
 		foreach ( $this->get_supported_post_types() as $post_type ) {
-			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'normal' );
+			add_meta_box( $this->plugin_slug, __( 'Vimeo Importer', $this->plugin_slug ), array( $this, 'get_meta_box' ), $post_type, 'side' );
 		}
 
 	}
