@@ -64,9 +64,10 @@
 					id: 'vimeo-importer-feedback'
 				}
 			},
-			dom = {},
+			dom = {};
 
-			searchForm = '<form id="' + config.form.id + '" class="' + config.form.classes + '">' +
+		var template = function () {
+			var searchForm = '<form id="' + config.form.id + '" class="' + config.form.classes + '">' +
 							'<label class="screen-reader-text" for="vimeo-importer-search">' + config.form.label + ':</label>' +
 							'<input type="search" id="vimeo-importer-search" name="' + config.form.search + '">' +
 							'<input type="hidden" name="' + config.form.page + '" value="1">' +
@@ -97,39 +98,27 @@
 
 			buttonHtml = '<a title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
 
-		$(config.container).append(thickboxHtml + buttonHtml);
+			$(config.container).append(thickboxHtml + buttonHtml);
 
-		dom.tabs = $('.' + config.tabs.class, '#' + config.tabs.id);
-		dom.form = $('#' + config.form.id);
-		dom.submit = $('[type="submit"]', dom.form);
-		dom.results = $('#' + config.results.id);
-		dom.feedback = $('#' + config.feedback.id);
-		dom.search = $('input[name="' + config.form.search + '"]', dom.form);
-		dom.page = $('input[name="' + config.form.page + '"]', dom.form);
+			dom.tabs = $('.' + config.tabs.class, '#' + config.tabs.id);
+			dom.tabs.click(toggleTabs);
 
-		dom.tabs.click(function (event) {
+			dom.form = $('#' + config.form.id);
+			dom.form.submit(formSubmit);
+
+			dom.search = $('input[name="' + config.form.search + '"]', dom.form);
+			dom.page = $('input[name="' + config.form.page + '"]', dom.form);
+
+			dom.submit = $('[type="submit"]', dom.form);
+			dom.submit.click(submitClick);
+
+			dom.results = $('#' + config.results.id);
+			dom.feedback = $('#' + config.feedback.id);
+		},
+
+		formSubmit = function (event) {
 			event.preventDefault();
-
-			// Switch tabs
-			$('#' + config.tabs.videos.id).hide();
-			$('#' + config.tabs.albums.id).hide();
-			$($(this).attr('href')).show();
-
-			dom.tabs.removeClass('active');
-			$(this).addClass('active');f
-		});
-
-		dom.search.change(function (event) {
-			dom.page.val(1);
-		});
-
-		dom.form.submit(function (event) {
-			event.preventDefault();
-
-			// Disable form
-			dom.submit.attr('disabled', 'disabled');
-			dom.results.html('<p>Waiting for Vimeo...</p>');
-			dom.feedback.html('');
+			searchFormReady(false);
 
 			// Get query
 			var query = dom.search.val(),
@@ -145,18 +134,35 @@
 				}
 			})
 			.done(function (response) {
-				// Enable form
-				dom.submit.removeAttr('disabled');
-
+				searchFormReady(true);
 				if (!response.body || response.body.error) {
 					showError(response, dom.results);
 				} else {
 					showResults(response.body);
 				}
 			});
-		});
+		},
 
-		var showResults = function (results) {
+		submitClick = function (event) {
+			// Reset page to one, button click means new search
+			dom.page.val(1);
+		},
+
+		pageResults = function (event) {
+			event.preventDefault();
+
+			var direction = $(event.target).attr('id') == config.results.form.pagination.previous ? 'previous' : 'next';
+			if (direction == 'previous') {
+				dom.page.val(parseInt(dom.page.val(), 10) - 1);
+				dom.form.submit();
+			}
+			else if (direction == 'next') {
+				dom.page.val(parseInt(dom.page.val(), 10) + 1);
+				dom.form.submit();
+			}
+		},
+
+		showResults = function (results) {
 			var i = 0,
 				length = results.data.length,
 				resultsHtml = '',
@@ -200,97 +206,134 @@
 			dom.next = $('#' + config.results.form.pagination.next, dom.resultsForm);
 			dom.import = $('[type="submit"]', dom.resultsForm);
 
-			dom.previous.click(function (event) {
-				event.preventDefault();
-				dom.page.val(parseInt(dom.page.val(), 10) - 1);
-				dom.form.submit();
+			dom.previous.click(pageResults);
+			dom.next.click(pageResults);
+
+			dom.resultsForm.submit(results, importSubmit);
+		},
+
+		importSubmit = function (event) {
+			event.preventDefault();
+
+			// Minimum one video
+			if ($('input[name="' + config.results.checkboxes + '[]"]:checked').length === 0) {
+				return false;
+			}
+
+			// Loop selected videos
+			var results = event.data,
+				videos = [];
+
+			$('input[name="' + config.results.checkboxes + '[]"]:checked').each(function(i, el) {
+				var id = $(el).val();
+
+				// Find data object from id
+				$.each(results.data, function(i, result) {
+					if (id === result.uri.split('/')[2]) {
+						// Store required data
+						var obj = {
+							dsv_vimeo_id: id,
+							post_title: result.name,
+							post_content: result.description,
+							dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + id + '.jpg',
+							dsv_vimeo_link: 'vimeo.com/' + id
+						};
+						videos.push(obj);
+					}
+				});
 			});
 
-			dom.next.click(function (event) {
-				event.preventDefault();
-				dom.page.val(parseInt(dom.page.val(), 10) + 1);
-				dom.form.submit();
-			});
+			resultsFormReady(false);
 
-			dom.resultsForm.submit(function (event) {
-				event.preventDefault();
-
-				// Minimum one video
-				if ($('input[name="' + config.results.checkboxes + '[]"]:checked').length === 0) {
-					return false;
+			$.ajax({
+				type: 'POST',
+				url: config.api.url,
+				data: {
+					endpoint: config.api.create,
+					videos: videos
 				}
-
-				// Disable form
-				dom.submit.attr('disabled', 'disabled');
-				dom.import.attr('disabled', 'disabled');
-				dom.feedback.html('<p>Waiting for Vimeo...</p>');
-
-				// Loop selected videos
-				var videos = [];
-				$('input[name="' + config.results.checkboxes + '[]"]:checked').each(function() {
-					id = $(this).val();
-
-					// Find data object from id
-					$.each(results.data, function(i, result) {
-						if (id === result.uri.split('/')[2]) {
-							// Store required data
-							var obj = {
-								dsv_vimeo_id: id,
-								post_title: result.name,
-								post_content: result.description,
-								dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + id + '.jpg',
-								dsv_vimeo_link: 'vimeo.com/' + id
-							};
-							videos.push(obj);
-						}
-					});
-				});
-
-				$.ajax({
-					type: 'POST',
-					url: config.api.url,
-					data: {
-						endpoint: config.api.create,
-						videos: videos
-					}
-				})
-				.done(function (response) {
-					// Enable form
-					dom.submit.removeAttr('disabled');
-					dom.import.removeAttr('disabled');
-
-					if (!response.body || response.body.error) {
-						showError(response, dom.feedback);
-					} else {
-						var i = 0,
-							length = response.body.data.length,
-							feedbackHtml = '';
-
-						// Feedback info
-						if (length > 0) {
-							for (i; i < length; i++) {
-								var video = response.body.data[i];
-								feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
-								if (video.image) {
-									feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
-								}
-								feedbackHtml += '</li>';
-							}
-						} else if (response.body.data.message) {
-							feedbackHtml += '<li>' + response.body.data.message + '.';
-						}
-
-						dom.feedback.html('<p>Feedback</p><ol>' + feedbackHtml + '</ol>');
-					}
-				});
+			})
+			.done(function (response) {
+				resultsFormReady(true);
+				if (!response.body || response.body.error) {
+					showError(response, dom.feedback);
+				} else {
+					showFeedback(response.body);
+				}
 			});
 		},
 
+		showFeedback = function (response) {
+			var i = 0,
+				length = response.data.length,
+				feedbackHtml = '';
+
+			// Feedback info
+			if (length > 0) {
+				for (i; i < length; i++) {
+					var video = response.data[i];
+					feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
+					if (video.image) {
+						feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
+					}
+					feedbackHtml += '</li>';
+				}
+			} else if (response.data.message) {
+				feedbackHtml += '<li>' + response.data.message + '.';
+			}
+
+			dom.feedback.html('<p>Feedback</p><ol>' + feedbackHtml + '</ol>');
+		},
+
 		showError = function (response, el) {
+			// Print error verbatim
 			var error = response.body && response.body.error ? response.body.error : 'Something went wrong.',
 				errorHtml ='<p><strong>Error:</strong> ' + error + '</p>';
 			el.html(errorHtml);
+		},
+
+		searchFormReady = function (enable) {
+			// Enable form
+			if (enable) {
+				dom.submit.removeAttr('disabled');
+			}
+			// Disable form
+			else {
+				dom.submit.attr('disabled', 'disabled');
+				dom.results.html('<p>Waiting for Vimeo...</p>');
+				dom.feedback.html('');
+			}
+		},
+
+		resultsFormReady = function (enable) {
+			// Enable form
+			if (enable) {
+				dom.submit.removeAttr('disabled');
+				dom.import.removeAttr('disabled');
+			}
+			// Disable form
+			else {
+				dom.submit.attr('disabled', 'disabled');
+				dom.import.attr('disabled', 'disabled');
+				dom.feedback.html('<p>Waiting for Vimeo...</p>');
+			}
+		},
+
+		toggleTabs = function (event) {
+			event.preventDefault();
+
+			// Switch tabs
+			$('#' + config.tabs.videos.id).hide();
+			$('#' + config.tabs.albums.id).hide();
+
+			var el = $(event.target);
+			$(el.attr('href')).show();
+
+			dom.tabs.removeClass('active');
+			el.addClass('active');
 		};
+
+		template();
 
 	});
 
