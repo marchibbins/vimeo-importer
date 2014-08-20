@@ -10,3 +10,17 @@
     padding-bottom: 15px;
     padding-top: 15px;
 }
+
+/* Tabs */
+#vimeo-importer-tabs {
+    margin: 15px 0;
+}
+
+#vimeo-importer-tabs .active {
+    color: #333;
+    text-decoration: none;
+}
+
+#vimeo-importer-tabs-albums {
+    display: none;
+}

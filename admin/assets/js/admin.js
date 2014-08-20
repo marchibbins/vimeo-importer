@@ -22,6 +22,18 @@
 					height: 550,
 					width: 600
 				},
+				tabs: {
+					id: 'vimeo-importer-tabs',
+					class: 'tab',
+					videos: {
+						id: 'vimeo-importer-tabs-videos',
+						text: 'Search for videos',
+					},
+					albums: {
+						id: 'vimeo-importer-tabs-albums',
+						text: 'View albums'
+					}
+				},
 				form: {
 					id: 'vimeo-importer-form',
 					classes: 'search-box',
@@ -64,17 +76,48 @@
 			results = '<div id="' + config.results.id + '"></div>',
 			feedback = '<div id="' + config.feedback.id + '"></div>',
 
-			thickboxHtml = '<div id="' + config.thickbox.id + '"><div class="' + config.thickbox.classes + '">' + searchForm + results + feedback + '</div></div>',
+			tabs = '<div id="' + config.tabs.id + '">' +
+						'<a class="' + config.tabs.class + ' active" href="#' + config.tabs.videos.id + '">' + config.tabs.videos.text + '</a> | ' +
+						'<a class="' + config.tabs.class + '" href="#' + config.tabs.albums.id + '">' + config.tabs.albums.text + '</a>' +
+					'</div>',
+
+			thickboxHtml = '<div id="' + config.thickbox.id + '">' +
+								'<div class="' + config.thickbox.classes + '">' +
+									tabs +
+									'<div id="' + config.tabs.videos.id + '">' +
+										searchForm +
+										results +
+										feedback +
+									'</div>' +
+									'<div id="' + config.tabs.albums.id + '">' +
+										'Albums' +
+									'</div>' +
+								'</div>' +
+							'</div>',
+
 			buttonHtml = '<a title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
 
 		$(config.container).append(thickboxHtml + buttonHtml);
 
+		dom.tabs = $('.' + config.tabs.class, '#' + config.tabs.id);
 		dom.form = $('#' + config.form.id);
 		dom.submit = $('[type="submit"]', dom.form);
 		dom.results = $('#' + config.results.id);
 		dom.feedback = $('#' + config.feedback.id);
 		dom.search = $('input[name="' + config.form.search + '"]', dom.form);
 		dom.page = $('input[name="' + config.form.page + '"]', dom.form);
+
+		dom.tabs.click(function (event) {
+			event.preventDefault();
+
+			// Switch tabs
+			$('#' + config.tabs.videos.id).hide();
+			$('#' + config.tabs.albums.id).hide();
+			$($(this).attr('href')).show();
+
+			dom.tabs.removeClass('active');
+			$(this).addClass('active');f
+		});
 
 		dom.search.change(function (event) {
 			dom.page.val(1);
