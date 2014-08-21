@@ -13,6 +13,7 @@
 				},
 				container: '.js-vimeo-importer',
 				button: {
+					id: 'vimeo-importer-button',
 					classes: 'button button-primary button-large',
 					text: 'Import Vimeo videos to Showreel'
 				},
@@ -114,7 +115,7 @@
 								'</div>' +
 							'</div>',
 
-			buttonHtml = '<a title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
+			buttonHtml = '<a id="' + config.button.id + '" title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
 
 			$(config.container).append(thickboxHtml + buttonHtml);
 
