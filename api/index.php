@@ -40,7 +40,7 @@ class Vimeo_Importer_Api {
 		'videos' => array(
 			'method' => 'GET',
 			'resource' => 'vimeo',
-			'fields' => 'uri,name,description',
+			'fields' => 'uri,name,description,pictures',
 			'url' => '/me/videos'
 		),
 		'create' => array(

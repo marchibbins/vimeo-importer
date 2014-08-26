@@ -259,7 +259,7 @@
 							dsv_vimeo_id: id,
 							post_title: result.name,
 							post_content: result.description,
-							dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + id + '.jpg',
+							dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + result.pictures.uri.split('/')[4] + '.jpg',
 							dsv_vimeo_link: 'vimeo.com/' + id
 						};
 						videos.push(obj);
