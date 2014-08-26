@@ -388,7 +388,7 @@
 					id = album.uri.split('/')[2];
 
 				albumsHtml += '<input type="checkbox" id="vimeo-importer-video-' + id + '" name="' + config.albums.checkboxes + '[]" value="' + id + '">' +
-								'<label for="vimeo-importer-video-' + id + '">' + album.name + '</label>' +
+								'<label for="vimeo-importer-video-' + id + '">' + album.name + ' (' + album.metadata.connections.videos.total + ')</label>' +
 								'<br>';
 			}
 
