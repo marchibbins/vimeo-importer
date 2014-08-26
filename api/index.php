@@ -43,7 +43,7 @@ class Vimeo_Importer_Api {
 			'fields' => 'uri,name,description,pictures',
 			'url' => '/me/videos'
 		),
-		'create' => array(
+		'import_videos' => array(
 			'method' => 'POST',
 			'resource' => 'wordpress',
 			'url' => null
@@ -231,9 +231,9 @@ class Vimeo_Importer_Api {
 			// Requests for Wordpress
 			switch ( $this->_endpoint ) {
 
-				case 'create':
+				case 'import_videos':
 					$data = array(
-						'body' => array( 'data' => $this->create_videos() ),
+						'body' => array( 'data' => $this->import_videos() ),
 						'status' => 200
 					);
 					break;
@@ -267,14 +267,14 @@ class Vimeo_Importer_Api {
 	/**
 	 * Create video posts or report if already imported.
 	 */
-	private function create_videos () {
+	private function import_videos () {
 
 		$response = array();
 
 		if ( !isset ( $_POST['videos'] ) ) {
 
 			return array(
-				'message' => 'No videos created'
+				'message' => 'No videos imported'
 			);
 
 		}
