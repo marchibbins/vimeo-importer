@@ -8,7 +8,8 @@
 					url: '/wp-content/plugins/vimeo-importer/api/',
 					search: 'videos',
 					albums: 'albums',
-					importVideos: 'import_videos',
+					import_videos: 'import_videos',
+					import_albums: 'import_albums',
 					per_page: 10
 				},
 				container: '.js-vimeo-importer',
@@ -273,7 +274,7 @@
 				type: 'POST',
 				url: config.api.url,
 				data: {
-					endpoint: config.api.importVideos,
+					endpoint: config.api.import_videos,
 					videos: videos
 				}
 			})
@@ -471,7 +472,7 @@
 				type: 'POST',
 				url: config.api.url,
 				data: {
-					endpoint: config.api.importVideos,
+					endpoint: config.api.import_albums,
 					album: id
 				}
 			})
