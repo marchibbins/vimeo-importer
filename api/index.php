@@ -43,6 +43,11 @@ class Vimeo_Importer_Api {
 			'fields' => 'uri,name,description,pictures',
 			'url' => '/me/videos'
 		),
+		'import_albums' => array(
+			'method' => 'POST',
+			'resource' => 'wordpress',
+			'url' => null
+		),
 		'import_videos' => array(
 			'method' => 'POST',
 			'resource' => 'wordpress',
@@ -238,6 +243,13 @@ class Vimeo_Importer_Api {
 					);
 					break;
 
+				case 'import_albums':
+					$data = array(
+						'body' => array( 'data' => $this->import_albums() ),
+						'status' => 200
+					);
+					break;
+
 				default:
 					$data = array(
 						'body' => array( 'error' => 'Not implemented' ),
@@ -265,13 +277,13 @@ class Vimeo_Importer_Api {
 	}
 
 	/**
-	 * Create video posts or report if already imported.
+	 * Retrieve and attempt import all videos for an album.
 	 */
-	private function import_videos () {
+	private function import_albums () {
 
 		$response = array();
 
-		if ( !isset ( $_POST['videos'] ) ) {
+		if ( !isset ( $_POST['album'] ) ) {
 
 			return array(
 				'message' => 'No videos imported'
@@ -279,7 +291,66 @@ class Vimeo_Importer_Api {
 
 		}
 
-		foreach ( $_POST['videos'] as $video ) {
+		// Direct album URI
+		$url = '/albums/' . (int) $_POST['album'] . '/videos';
+
+		// Reuse minimum fields for videos
+		$url .= '?fields=' . self::$endpoints['videos']['fields'];
+
+		$data = $this->_vimeo->request( $url );
+
+		if ( isset($data['body']['data'] ) ) {
+
+			$videos = array();
+
+			foreach ( $data['body']['data'] as $video ) {
+
+				$uri = explode('/', $video['uri']);
+				$picture_uri = explode('/', $video['pictures']['uri']);
+
+				// Store required data
+				array_push( $videos, array(
+					'dsv_vimeo_id' => $uri[2],
+					'post_title' => $video['name'],
+					'post_content' => $video['description'],
+					'dsv_vimeo_holdingframe_url' => 'http://i.vimeocdn.com/video/' . $picture_uri[4] . '.jpg',
+					'dsv_vimeo_link' => 'vimeo.com/' . $uri[2]
+				) );
+
+			}
+
+			return $this->import_videos( $videos );
+
+		} else {
+
+			return array(
+				'message' => 'Could not import album'
+			);
+
+		}
+
+	}
+
+	/**
+	 * Create video posts or report if already imported.
+	 */
+	private function import_videos ( $videos = null ) {
+
+		$response = array();
+
+		if ( !$videos && !isset ( $_POST['videos'] ) ) {
+
+			return array(
+				'message' => 'No videos imported'
+			);
+
+		}
+
+		if ( !$videos ) {
+			$videos = $_POST['videos'];
+		}
+
+		foreach ( $videos as $video ) {
 
 			// Check whether video already exists
 			$id_query = new WP_Query( array(
