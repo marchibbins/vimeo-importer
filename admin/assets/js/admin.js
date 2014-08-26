@@ -142,16 +142,19 @@
 
 			// Get query
 			var query = dom.search.val(),
-				page = dom.page.val();
+			data = {
+				endpoint: config.api.search,
+				per_page: config.api.per_page,
+				page: dom.page.val()
+			};
+
+			if (query !== '') {
+				data.query = query;
+			}
 
 			$.ajax({
 				url: config.api.url,
-				data: {
-					endpoint: config.api.search,
-					per_page: config.api.per_page,
-					page: page,
-					name: query
-				}
+				data: data
 			})
 			.done(function (response) {
 				searchFormReady(true);
