@@ -64,7 +64,7 @@
 				},
 				albums: {
 					id: 'vimeo-importer-albums',
-					checkboxes: 'albums',
+					radios: 'albums',
 					form: {
 						id: 'vimeo-importer-albums-form',
 						page: 'p',
@@ -227,27 +227,28 @@
 			dom.resultsForm = $('#' + config.results.form.id);
 			dom.resultsPrevious = $('#' + config.results.form.pagination.previous, dom.resultsForm);
 			dom.resultsNext = $('#' + config.results.form.pagination.next, dom.resultsForm);
-			dom.import = $('[type="submit"]', dom.resultsForm);
+			dom.resultsImport = $('[type="submit"]', dom.resultsForm);
 
 			dom.resultsPrevious.click(pageResults);
 			dom.resultsNext.click(pageResults);
 
-			dom.resultsForm.submit(results, importSubmit);
+			dom.resultsForm.submit(results, importResults);
 		},
 
-		importSubmit = function (event) {
+		importResults = function (event) {
 			event.preventDefault();
 
 			// Minimum one video
-			if ($('input[name="' + config.results.checkboxes + '[]"]:checked').length === 0) {
+			var checked = $('input[name="' + config.results.checkboxes + '[]"]:checked', dom.resultsForm);
+			if (checked.length === 0) {
 				return false;
 			}
 
-			// Loop selected videos
+			// Loop checked videos
 			var results = event.data,
 				videos = [];
 
-			$('input[name="' + config.results.checkboxes + '[]"]:checked').each(function(i, el) {
+			checked.each(function(i, el) {
 				var id = $(el).val();
 
 				// Find data object from id
@@ -332,13 +333,28 @@
 			// Enable form
 			if (enable) {
 				dom.submit.removeAttr('disabled');
-				dom.import.removeAttr('disabled');
+				dom.resultsImport.removeAttr('disabled');
+				$('input', dom.resultsForm).removeAttr('disabled');
 			}
 			// Disable form
 			else {
 				dom.submit.attr('disabled', 'disabled');
-				dom.import.attr('disabled', 'disabled');
+				dom.resultsImport.attr('disabled', 'disabled');
+				$('input', dom.resultsForm).attr('disabled', 'disabled');
 				dom.feedback.html('<p>' + config.waiting + '</p>');
+			}
+		},
+
+		albumsFormReady = function (enable) {
+			// Enable form
+			if (enable) {
+				dom.albumsImport.removeAttr('disabled');
+				$('input', dom.albumsForm).removeAttr('disabled');
+			}
+			// Disable form
+			else {
+				dom.albumsImport.attr('disabled', 'disabled');
+				$('input', dom.albumsForm).attr('disabled', 'disabled');
 			}
 		},
 
@@ -371,7 +387,20 @@
 			.done(function (response) {
 				showAlbums(response.body);
 			});
+		},
 
+		pageAlbums = function (event) {
+			event.preventDefault();
+
+			var direction = $(event.target).attr('id') == config.albums.form.pagination.previous ? 'previous' : 'next';
+			if (direction == 'previous') {
+				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) - 1);
+				getAlbums();
+			}
+			else if (direction == 'next') {
+				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) + 1);
+				getAlbums();
+			}
 		},
 
 		showAlbums = function (albums) {
@@ -382,12 +411,12 @@
 				next = albums.paging.next,
 				page = dom.albumsPage ? dom.albumsPage.val() : 1;
 
-			// Video checkboxes
+			// Album radios
 			for (i; i < length; i++) {
 				var album = albums.data[i],
-					id = album.uri.split('/')[2];
+					id = album.uri.split('/')[4];
 
-				albumsHtml += '<input type="checkbox" id="vimeo-importer-video-' + id + '" name="' + config.albums.checkboxes + '[]" value="' + id + '">' +
+				albumsHtml += '<input type="radio" id="vimeo-importer-video-' + id + '" name="' + config.albums.radios + '[]" value="' + id + '">' +
 								'<label for="vimeo-importer-video-' + id + '">' + album.name + ' (' + album.metadata.connections.videos.total + ')</label>' +
 								'<br>';
 			}
@@ -417,24 +446,39 @@
 			dom.albumsPage = $('input[name="' + config.albums.form.page + '"]', dom.albumsForm);
 			dom.albumsPrevious = $('#' + config.albums.form.pagination.previous, dom.albumsForm);
 			dom.albumsNext = $('#' + config.albums.form.pagination.next, dom.albumsForm);
-			dom.import = $('[type="submit"]', dom.albumsForm);
+			dom.albumsImport = $('[type="submit"]', dom.albumsForm);
 
 			dom.albumsPrevious.click(pageAlbums);
 			dom.albumsNext.click(pageAlbums);
+
+			dom.albumsForm.submit(importAlbums);
 		},
 
-		pageAlbums = function (event) {
+		importAlbums = function (event) {
 			event.preventDefault();
 
-			var direction = $(event.target).attr('id') == config.albums.form.pagination.previous ? 'previous' : 'next';
-			if (direction == 'previous') {
-				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) - 1);
-				getAlbums();
+			// Minimum one album
+			var checked = $('input[name="' + config.albums.radios + '[]"]:checked', dom.albumsForm);
+			if (checked.length === 0) {
+				return false;
 			}
-			else if (direction == 'next') {
-				dom.albumsPage.val(parseInt(dom.albumsPage.val(), 10) + 1);
-				getAlbums();
-			}
+
+			var id = checked.first().val();
+
+			albumsFormReady(false);
+
+			$.ajax({
+				type: 'POST',
+				url: config.api.url,
+				data: {
+					endpoint: config.api.create,
+					album: id
+				}
+			})
+			.done(function (response) {
+				albumsFormReady(true);
+				console.log(response);
+			});
 		};
 
 		// Init
