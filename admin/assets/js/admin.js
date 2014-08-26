@@ -94,9 +94,6 @@
 							'<input type="submit" class="' + config.form.button.classes + '" value="' + config.form.button.text + '">' +
 						'</form>',
 
-			results = '<div id="' + config.results.id + '"></div>',
-			feedback = '<div id="' + config.feedback.id + '"></div>',
-
 			tabs = '<div id="' + config.tabs.id + '">' +
 						'<a class="' + config.tabs.class + ' active" href="#' + config.tabs.videos.id + '">' + config.tabs.videos.text + '</a> | ' +
 						'<a class="' + config.tabs.class + '" href="#' + config.tabs.albums.id + '">' + config.tabs.albums.text + '</a>' +
@@ -107,12 +104,12 @@
 									tabs +
 									'<div id="' + config.tabs.videos.id + '">' +
 										searchForm +
-										results +
-										feedback +
+										'<div id="' + config.results.id + '"></div>' +
 									'</div>' +
 									'<div id="' + config.tabs.albums.id + '">' +
 										'<div id="' + config.albums.id + '"></div>' +
 									'</div>' +
+									'<div id="' + config.feedback.id + '"></div>' +
 								'</div>' +
 							'</div>',
 
@@ -356,6 +353,7 @@
 			else {
 				dom.albumsImport.attr('disabled', 'disabled');
 				$('input', dom.albumsForm).attr('disabled', 'disabled');
+				dom.feedback.html('<p>' + config.waiting + '</p>');
 			}
 		},
 
@@ -365,6 +363,7 @@
 			// Switch tabs
 			$('#' + config.tabs.videos.id).hide();
 			$('#' + config.tabs.albums.id).hide();
+			dom.feedback.html('');
 
 			var el = $(event.target);
 			$(el.attr('href')).show();
@@ -478,7 +477,11 @@
 			})
 			.done(function (response) {
 				albumsFormReady(true);
-				console.log(response);
+				if (!response.body || response.body.error) {
+					showError(response, dom.feedback);
+				} else {
+					showFeedback(response.body);
+				}
 			});
 		};
 
