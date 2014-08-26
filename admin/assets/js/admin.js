@@ -418,7 +418,7 @@
 					id = album.uri.split('/')[4];
 
 				albumsHtml += '<input type="radio" id="vimeo-importer-video-' + id + '" name="' + config.albums.radios + '[]" value="' + id + '">' +
-								'<label for="vimeo-importer-video-' + id + '">' + album.name + ' (' + album.metadata.connections.videos.total + ')</label>' +
+								'<label for="vimeo-importer-video-' + id + '">' + album.name + '</label>' +
 								'<br>';
 			}
 
@@ -464,7 +464,8 @@
 				return false;
 			}
 
-			var id = checked.first().val();
+			var id = checked.first().val(),
+				name = $('label[for="' + checked.first().attr('id') + '"]').text();
 
 			albumsFormReady(false);
 
@@ -483,13 +484,16 @@
 				} else {
 					showFeedback(response.body);
 					relateVideos(response.body.data);
+
+					if ($('input#title').val() === '') {
+						$('input#title').val(name).trigger('focus');
+					}
 				}
 			});
 		},
 
 		// Bastardised version from MRP JS
 		relateVideos = function (videos) {
-
 			var postType = $('input[name^="MRP_post_type_name"][value="dsv_video"]').first(),
 				postTypeIndex = postType.attr('id').split('-')[1],
 				total = parseInt($('#MRP_related_count-' + postTypeIndex).text(), 10),
