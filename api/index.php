@@ -82,7 +82,9 @@ class Vimeo_Importer_Api {
 		$this->init_vimeo();
 
 		$this->get_params();
-		$this->get_data();
+
+		$data = $this->get_data();
+		$this->return_json( $data );
 
 	}
 
@@ -221,7 +223,8 @@ class Vimeo_Importer_Api {
 			// Requests for Vimeo API
 			$url = self::$endpoints[$this->_endpoint]['url'] . $this->_params;
 			$data = $this->_vimeo->request( $url );
-			$this->return_json( $data );
+
+			return $data;
 
 		} else {
 
@@ -243,7 +246,7 @@ class Vimeo_Importer_Api {
 					break;
 			}
 
-			$this->return_json( $data );
+			return $data;
 
 		}
 
