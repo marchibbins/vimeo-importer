@@ -366,6 +366,7 @@ class Vimeo_Importer_Api {
 				// Video created
 				array_push( $response, array(
 					'id' => $post['id'],
+					'name' => $post['title'],
 					'image' => $post['image'],
 					'status' => 'created'
 				) );
@@ -375,6 +376,7 @@ class Vimeo_Importer_Api {
 				// Video not created
 				array_push( $response, array(
 					'id' => $id_query->posts[0]->ID,
+					'name' => $id_query->posts[0]->post_title,
 					'status' => 'exists'
 				) );
 
@@ -414,6 +416,7 @@ class Vimeo_Importer_Api {
 
 		return array(
 			'id' => $post_id,
+			'title' => $obj['post_title'],
 			'image' => $image
 		);
 
