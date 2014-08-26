@@ -281,6 +281,7 @@
 					showError(response, dom.feedback);
 				} else {
 					showFeedback(response.body);
+					relateVideos(response.body.data);
 				}
 			});
 		},
@@ -294,7 +295,7 @@
 			if (length > 0) {
 				for (i; i < length; i++) {
 					var video = response.data[i];
-					feedbackHtml += '<li>Video <strong>' + video.id + '</strong> ' + video.status + '.';
+					feedbackHtml += '<li>Video <strong>' + video.id + ' "' + video.name + '"</strong> ' + video.status + '.';
 					if (video.image) {
 						feedbackHtml += '<ul><li>Image <strong>' + video.image.id + '</strong> ' + video.image.message + '.</li></ul>';
 					}
@@ -481,8 +482,39 @@
 					showError(response, dom.feedback);
 				} else {
 					showFeedback(response.body);
+					relateVideos(response.body.data);
 				}
 			});
+		},
+
+		// Bastardised version from MRP JS
+		relateVideos = function (videos) {
+
+			var postType = $('input[name^="MRP_post_type_name"][value="dsv_video"]').first(),
+				postTypeIndex = postType.attr('id').split('-')[1],
+				total = parseInt($('#MRP_related_count-' + postTypeIndex).text(), 10),
+				html = '';
+
+			$.each(videos, function(i, video) {
+				var postID = video.id,
+					resultID = 'related-post_' + postID,
+					name = video.name;
+
+				if ($('#' + resultID).length === 0) {
+					html += '<li id="' + resultID + '">' +
+								'<span class="MPR_moovable">' +
+									'<strong>' + name + '</strong>' +
+									'<span><a class="MRP_deletebtn" onclick="MRP_remove_relationship(\'' + resultID + '\')">X</a></span>' +
+								'</span>' +
+								'<input type="hidden" name="MRP_related_posts[' + postTypeIndex + '][]" value="' + postID + '" />' +
+							'</li>';
+					total++;
+				}
+			});
+
+			$('#MRP_related_posts_replacement-' + postTypeIndex).hide();
+			$('#MRP_relatedposts_list-' + postTypeIndex).append(html);
+			$('#MRP_related_count-' + postTypeIndex).text(total);
 		};
 
 		// Init
