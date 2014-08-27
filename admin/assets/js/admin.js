@@ -494,31 +494,33 @@
 
 		// Bastardised version from MRP JS
 		relateVideos = function (videos) {
-			var postType = $('input[name^="MRP_post_type_name"][value="dsv_video"]').first(),
-				postTypeIndex = postType.attr('id').split('-')[1],
-				total = parseInt($('#MRP_related_count-' + postTypeIndex).text(), 10),
-				html = '';
+			if ($('#MRP_relatedposts').length > 0) {
+				var postType = $('input[name^="MRP_post_type_name"][value="dsv_video"]').first(),
+					postTypeIndex = postType.attr('id').split('-')[1],
+					total = parseInt($('#MRP_related_count-' + postTypeIndex).text(), 10),
+					html = '';
 
-			$.each(videos, function(i, video) {
-				var postID = video.id,
-					resultID = 'related-post_' + postID,
-					name = video.name;
+				$.each(videos, function(i, video) {
+					var postID = video.id,
+						resultID = 'related-post_' + postID,
+						name = video.name;
 
-				if ($('#' + resultID).length === 0) {
-					html += '<li id="' + resultID + '">' +
-								'<span class="MPR_moovable">' +
-									'<strong>' + name + '</strong>' +
-									'<span><a class="MRP_deletebtn" onclick="MRP_remove_relationship(\'' + resultID + '\')">X</a></span>' +
-								'</span>' +
-								'<input type="hidden" name="MRP_related_posts[' + postTypeIndex + '][]" value="' + postID + '" />' +
-							'</li>';
-					total++;
-				}
-			});
+					if ($('#' + resultID).length === 0) {
+						html += '<li id="' + resultID + '">' +
+									'<span class="MPR_moovable">' +
+										'<strong>' + name + '</strong>' +
+										'<span><a class="MRP_deletebtn" onclick="MRP_remove_relationship(\'' + resultID + '\')">X</a></span>' +
+									'</span>' +
+									'<input type="hidden" name="MRP_related_posts[' + postTypeIndex + '][]" value="' + postID + '" />' +
+								'</li>';
+						total++;
+					}
+				});
 
-			$('#MRP_related_posts_replacement-' + postTypeIndex).hide();
-			$('#MRP_relatedposts_list-' + postTypeIndex).append(html);
-			$('#MRP_related_count-' + postTypeIndex).text(total);
+				$('#MRP_related_posts_replacement-' + postTypeIndex).hide();
+				$('#MRP_relatedposts_list-' + postTypeIndex).append(html);
+				$('#MRP_related_count-' + postTypeIndex).text(total);
+			}
 		};
 
 		// Init
