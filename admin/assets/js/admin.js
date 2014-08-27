@@ -10,7 +10,7 @@
 					albums: 'albums',
 					import_videos: 'import_videos',
 					import_albums: 'import_albums',
-					per_page: 10
+					per_page: 30
 				},
 				container: '.js-vimeo-importer',
 				button: {
@@ -20,6 +20,7 @@
 				},
 				thickbox: {
 					id: 'vimeo-importer-thickbox',
+					parent: 'vimeo-importer-thickbox-container',
 					classes: 'vimeo-importer-thickbox',
 					title: 'Vimeo Importer',
 					height: 550,
@@ -116,6 +117,26 @@
 			buttonHtml = '<a id="' + config.button.id + '" title="' + config.thickbox.title + '" class="' + config.button.classes + ' thickbox" href="#TB_inline?width=' + config.thickbox.width + '&height=' + config.thickbox.height + '&inlineId=' + config.thickbox.id + '">' + config.button.text + '</a>';
 
 			$(config.container).append(thickboxHtml + buttonHtml);
+
+			// Thickbox hack
+			$('#' + config.button.id).click(function() {
+				// Wait for append
+				setTimeout(function() {
+					// Attach unique class
+					$('#TB_window .' + config.thickbox.classes).parent().addClass(config.thickbox.parent);
+					$(window).trigger('resize');
+				}, 100);
+			});
+
+			// Update sizes
+			$(window).resize(function() {
+				var content = $('.' + config.thickbox.parent),
+					thickbox = content.closest('#TB_window');
+
+				// Magic numbers, no idea
+				content.width(thickbox.width() - 30);
+				content.height(thickbox.height() - 47);
+			});
 
 			dom.tabs = $('.' + config.tabs.class, '#' + config.tabs.id);
 			dom.tabs.click(toggleTabs);
