@@ -494,7 +494,7 @@
 
 		// Bastardised version from MRP JS
 		relateVideos = function (videos) {
-			if ($('#MRP_relatedposts').length > 0) {
+			if ($(config.container).attr('data-relate') === 'true' && $('#MRP_relatedposts').length > 0) {
 				var postType = $('input[name^="MRP_post_type_name"][value="dsv_video"]').first(),
 					postTypeIndex = postType.attr('id').split('-')[1],
 					total = parseInt($('#MRP_related_count-' + postTypeIndex).text(), 10),

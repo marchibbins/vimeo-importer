@@ -59,6 +59,19 @@
 				</td>
 			</tr>
 
+			<tr valign="top">
+				<th scope="row">
+					<label>Automatically relate imported videos for the following post types</label>
+				</th>
+				<td>
+					<?php $supported_relate_types = explode( ',', $options['relate_types'] ) ?>
+					<?php foreach ( get_post_types( '', 'object' ) as $relate_type => $details ): ?>
+						<input type="checkbox" id="vimeo-importer-relate-type-<?php echo $relate_type ?>" name="relate_types[]" value="<?php echo $relate_type ?>" <?php if ( in_array($relate_type, $supported_relate_types ) ): ?>checked="checked"<?php endif ?>>
+						<label for="vimeo-importer-relate-type-<?php echo $relate_type ?>"><?php echo $details->label ?></label>
+						<br>
+					<?php endforeach ?>
+				</td>
+			</tr>
 		</table>
 
 		<p class="submit">

@@ -150,6 +150,11 @@ class Vimeo_Importer_Admin {
 			} else {
 				$new_options['post_types'] = '';
 			}
+			if ( !empty( $_POST['relate_types'] ) ) {
+				$new_options['relate_types'] = esc_attr( implode( ',', $_POST['relate_types'] ) );
+			} else {
+				$new_options['relate_types'] = '';
+			}
 
 			// Update options with new values
 			update_option( 'Vimeo_Importer', $new_options );
@@ -217,7 +222,11 @@ class Vimeo_Importer_Admin {
 	 */
 	public function get_meta_box() {
 
-		echo '<div class="js-' . $this->plugin_slug . '">' .
+		global $post_type;
+
+		$relate = in_array($post_type, $this->get_relate_post_types()) ? 'true' : 'false';
+
+		echo '<div class="js-' . $this->plugin_slug . '" data-relate="' . $relate . '">' .
 				'<noscript>Enable Javascript to import Vimeo videos.</noscript>' .
 			 '</div>';
 
@@ -232,6 +241,18 @@ class Vimeo_Importer_Admin {
 		$post_types = explode( ',', $options['post_types'] );
 
 		return $post_types;
+
+	}
+
+	/**
+	 * Get the post types that can display the Vimeo Importer
+	 */
+	public function get_relate_post_types( ) {
+
+		$options = get_option( 'Vimeo_Importer' );
+		$relate_types = explode( ',', $options['relate_types'] );
+
+		return $relate_types;
 
 	}
 
