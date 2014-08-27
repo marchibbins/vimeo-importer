@@ -226,22 +226,12 @@ class Vimeo_Importer_Admin {
 	/**
 	 * Get the post types that can display the Vimeo Importer
 	 */
-	public function get_supported_post_types( $details = false ) {
+	public function get_supported_post_types( ) {
 
 		$options = get_option( 'Vimeo_Importer' );
 		$post_types = explode( ',', $options['post_types'] );
 
-		if ( false === $details ) {
-			return $post_types;
-		}
-
-		$details = array();
-		foreach ( $post_types as $post_type ) {
-			$post_type_details = get_post_types( array('name' => $post_type), 'object' );
-			$details[$post_type] = $post_type_details[$post_type];
-		}
-
-		return $details;
+		return $post_types;
 
 	}
 
