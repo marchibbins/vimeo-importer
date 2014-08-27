@@ -9,12 +9,6 @@
     display: none;
 }
 
-/* Content container in Thickbox */
-.vimeo-importer-thickbox {
-    padding-bottom: 15px;
-    padding-top: 15px;
-}
-
 /* Tabs */
 #vimeo-importer-tabs {
     margin: 15px 0;
@@ -27,4 +21,42 @@
 
 #vimeo-importer-tabs-albums {
     display: none;
+}
+
+/* Videos */
+.vimeo-importer-videos {
+    margin-left: -10px;
+}
+
+.vimeo-importer-video {
+    float: left;
+    height: 165px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    overflow: hidden;
+    width: 200px;
+}
+
+.vimeo-importer-video .vimeo-importer-video-input {
+    float: left;
+    height: 16px;
+    margin-top: 2px;
+    width: 16px;
+}
+
+.vimeo-importer-video .vimeo-importer-video-input:checked::before {
+    font-style: 21px;
+}
+
+.vimeo-importer-video .vimeo-importer-video-label {
+    display: block;
+    margin-left: 25px;
+}
+
+.vimeo-importer-image {
+    margin-bottom: 10px;
+}
+
+.vimeo-importer-pagination {
+    clear: left;
 }

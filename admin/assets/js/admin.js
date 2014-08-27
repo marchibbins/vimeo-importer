@@ -216,9 +216,11 @@
 				var result = results.data[i],
 					id = result.uri.split('/')[2];
 
-				resultsHtml += '<input type="checkbox" id="vimeo-importer-video-' + id + '" name="' + config.results.checkboxes + '[]" value="' + id + '">' +
-								'<label for="vimeo-importer-video-' + id + '">' + result.name + '</label>' +
-								'<br>';
+				resultsHtml += '<div class="vimeo-importer-video">' +
+									'<img src="http://i.vimeocdn.com/video/' + result.pictures.uri.split('/')[4] + '_200x105.jpg">' +
+									'<input type="checkbox" id="vimeo-importer-video-' + id + '" class="vimeo-importer-video-input" name="' + config.results.checkboxes + '[]" value="' + id + '">' +
+									'<label for="vimeo-importer-video-' + id + '" class="vimeo-importer-video-label">' + result.name + '</label>' +
+								'</div>';
 			}
 
 			// Pagination
@@ -235,12 +237,15 @@
 
 			// Results form
 			var form = '<form id="' + config.results.form.id + '">' +
-							resultsHtml +
-							'<p>' + pagination + '</p>' +
-							'<p><input type="submit" class="' + config.results.form.button.classes + '" value="' + config.results.form.button.text + '"></p>' +
-						'</form>',
+							'<div class="vimeo-importer-videos">' + resultsHtml + '</div>' +
+							'<div class="vimeo-importer-pagination">' + pagination + '</div>';
 
-				total = '<p>Video results (' + results.total + ')</p>';
+			if (length > 0) {
+				form += '<p><input type="submit" class="' + config.results.form.button.classes + '" value="' + config.results.form.button.text + '"></p>';
+			}
+
+			form += '</form>';
+			var total = length === 0 ? '<p>No results found.</p>' : '<p>Video results</p>';
 
 			dom.results.html(total + form);
 			dom.resultsForm = $('#' + config.results.form.id);
