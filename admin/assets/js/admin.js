@@ -153,10 +153,16 @@
 			dom.results = $('#' + config.results.id);
 			dom.albums = $('#' + config.albums.id);
 			dom.feedback = $('#' + config.feedback.id);
+
+			// Populate latest videos
+			formSubmit();
 		},
 
 		formSubmit = function (event) {
-			event.preventDefault();
+			if (event) {
+				event.preventDefault();
+			}
+
 			searchFormReady(false);
 
 			// Get query
