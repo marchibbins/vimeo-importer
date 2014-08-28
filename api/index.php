@@ -428,34 +428,34 @@ class Vimeo_Importer_Api {
 	private function create_image_post ( $image_url, $post_id ) {
 
 		$uploads = wp_upload_dir();
-		$filename = wp_unique_filename( $uploads['path'], basename($image_url) );
+		$filename = wp_unique_filename( $uploads['path'], basename( $image_url ) );
 
 		$wp_filetype = wp_check_filetype( $filename, null );
 		$full_path = $uploads['path'] . '/' . $filename;
 
 		try {
 
-			if ( !substr_count($wp_filetype['type'], 'image') ) {
-				throw new Exception( '"' . basename($image_url) . '" is not a valid image. ' . $wp_filetype['type'] );
+			if ( !substr_count( $wp_filetype['type'], 'image' ) ) {
+				throw new Exception( '"' . basename($image_url) . '" is not a valid image' );
 			}
 
-			$image_string = $this->fetch_image($image_url);
+			$image_string = $this->fetch_image( $image_url );
 
-			$file_saved = file_put_contents($full_path, $image_string);
+			$file_saved = file_put_contents( $full_path, $image_string );
 			if ( !$file_saved ) {
-				throw new Exception('The file cannot be saved.');
+				throw new Exception( 'The file cannot be saved' );
 			}
 
 			$attachment = array(
 				'post_mime_type' => $wp_filetype['type'],
-				'post_title' => preg_replace('/\.[^.]+$/', '', $filename),
+				'post_title' => preg_replace( '/\.[^.]+$/', '', $filename ),
 				'post_status' => 'inherit',
 				'guid' => $uploads['url'] . '/' . $filename
 			);
 
 			$attach_id = wp_insert_attachment( $attachment, $full_path, $post_id );
 			if ( !$attach_id ) {
-				throw new Exception('Failed to save record into database.');
+				throw new Exception( 'Failed to save record into database' );
 			}
 
 			$attach_data = wp_generate_attachment_metadata( $attach_id, $full_path );
@@ -466,7 +466,7 @@ class Vimeo_Importer_Api {
 				'message' => 'success'
 			);
 
-		} catch (Exception $e) {
+		} catch ( Exception $e ) {
 
 			return array(
 				'message' => $e->getMessage()
