@@ -216,8 +216,14 @@
 				var result = results.data[i],
 					id = result.uri.split('/')[2];
 
+				if (result.pictures) {
+					result.image = 'http://i.vimeocdn.com/video/' + result.pictures.uri.split('/')[4] + '.jpg'
+				} else {
+					result.image = 'https://i.vimeocdn.com/video/default.jpg';
+				}
+
 				resultsHtml += '<div class="vimeo-importer-video">' +
-									'<img src="http://i.vimeocdn.com/video/' + result.pictures.uri.split('/')[4] + '_200x105.jpg">' +
+									'<img src="' + result.image.replace('.jpg', '_200x105.jpg') + '">' +
 									'<input type="checkbox" id="vimeo-importer-video-' + id + '" class="vimeo-importer-video-input" name="' + config.results.checkboxes + '[]" value="' + id + '">' +
 									'<label for="vimeo-importer-video-' + id + '" class="vimeo-importer-video-label">' + result.name + '</label>' +
 								'</div>';
@@ -283,7 +289,7 @@
 							dsv_vimeo_id: id,
 							post_title: result.name,
 							post_content: result.description,
-							dsv_vimeo_holdingframe_url: 'http://i.vimeocdn.com/video/' + result.pictures.uri.split('/')[4] + '.jpg',
+							dsv_vimeo_holdingframe_url: result.image,
 							dsv_vimeo_link: 'vimeo.com/' + id
 						};
 						videos.push(obj);
