@@ -396,16 +396,18 @@ class Vimeo_Importer_Api {
 	 */
 	private function create_video_post ( $obj ) {
 
+		$title = str_replace( '-', ' ', str_replace( '_', ' ', $obj['post_title'] ) );
+
 		// Basic CPT object
 		$post_id = wp_insert_post( array(
 			'post_type' => 'dsv_video',
 			'post_status' => 'publish',
-			'post_title' => $obj['post_title'],
+			'post_title' => $title,
 			'post_content' => $obj['post_content']
 		) );
 
 		// Image
-		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id, $obj['post_title'] );
+		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id, $title );
 		if ( $image['message'] === 'success' ) {
 			set_post_thumbnail( $post_id, $image['id'] );
 		}
@@ -419,7 +421,7 @@ class Vimeo_Importer_Api {
 
 		return array(
 			'id' => $post_id,
-			'title' => $obj['post_title'],
+			'title' => $title,
 			'image' => $image
 		);
 
@@ -452,7 +454,7 @@ class Vimeo_Importer_Api {
 
 			$attachment = array(
 				'post_mime_type' => $wp_filetype['type'],
-				'post_title' => str_replace( '-', ' ', str_replace( '_', ' ', $title ) ),
+				'post_title' => $title,
 				'post_status' => 'inherit',
 				'guid' => $uploads['url'] . '/' . $filename
 			);
