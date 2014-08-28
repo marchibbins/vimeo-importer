@@ -229,9 +229,11 @@
 				}
 
 				resultsHtml += '<div class="vimeo-importer-video">' +
-									'<img src="' + result.image.replace('.jpg', '_200x105.jpg') + '">' +
-									'<input type="checkbox" id="vimeo-importer-video-' + id + '" class="vimeo-importer-video-input" name="' + config.results.checkboxes + '[]" value="' + id + '">' +
-									'<label for="vimeo-importer-video-' + id + '" class="vimeo-importer-video-label">' + result.name + '</label>' +
+									'<label for="vimeo-importer-video-' + id + '">' +
+										'<img src="' + result.image.replace('.jpg', '_200x105.jpg') + '">' +
+										'<input type="checkbox" id="vimeo-importer-video-' + id + '" class="vimeo-importer-video-input" name="' + config.results.checkboxes + '[]" value="' + id + '">' +
+										'<span class="vimeo-importer-video-text">' + result.name + '</span>' +
+									'</label>' +
 								'</div>';
 			}
 
@@ -259,7 +261,7 @@
 			form += '</form>';
 			var total = length === 0 ? '<p>No results found.</p>' : '<p>Video results</p>';
 
-			dom.results.html(total + form);
+			dom.results.html('').append(total + form);
 			dom.resultsForm = $('#' + config.results.form.id);
 			dom.resultsPrevious = $('#' + config.results.form.pagination.previous, dom.resultsForm);
 			dom.resultsNext = $('#' + config.results.form.pagination.next, dom.resultsForm);

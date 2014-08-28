@@ -45,10 +45,10 @@
 }
 
 .vimeo-importer-video .vimeo-importer-video-input:checked::before {
-    font-style: 21px;
+    font-size: 21px;
 }
 
-.vimeo-importer-video .vimeo-importer-video-label {
+.vimeo-importer-video .vimeo-importer-video-text {
     display: block;
     margin-left: 25px;
 }
