@@ -402,7 +402,7 @@ class Vimeo_Importer_Api {
 		) );
 
 		// Image
-		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id );
+		$image = $this->create_image_post( $obj['dsv_vimeo_holdingframe_url'], $post_id, $obj['post_title'] );
 		if ( $image['message'] === 'success' ) {
 			set_post_thumbnail( $post_id, $image['id'] );
 		}
@@ -425,10 +425,11 @@ class Vimeo_Importer_Api {
 	/**
 	 * Inserts media attachment with video holding image.
 	 */
-	private function create_image_post ( $image_url, $post_id ) {
+	private function create_image_post ( $image_url, $post_id, $title ) {
 
 		$uploads = wp_upload_dir();
-		$filename = wp_unique_filename( $uploads['path'], basename( $image_url ) );
+		$slug = str_replace( ' ', '-', $title ) . '.jpg';
+		$filename = wp_unique_filename( $uploads['path'], $slug );
 
 		$wp_filetype = wp_check_filetype( $filename, null );
 		$full_path = $uploads['path'] . '/' . $filename;
@@ -436,7 +437,7 @@ class Vimeo_Importer_Api {
 		try {
 
 			if ( !substr_count( $wp_filetype['type'], 'image' ) ) {
-				throw new Exception( '"' . basename($image_url) . '" is not a valid image' );
+				throw new Exception( '"' . $slug . '" is not a valid image' );
 			}
 
 			$image_string = $this->fetch_image( $image_url );
@@ -448,7 +449,7 @@ class Vimeo_Importer_Api {
 
 			$attachment = array(
 				'post_mime_type' => $wp_filetype['type'],
-				'post_title' => preg_replace( '/\.[^.]+$/', '', $filename ),
+				'post_title' => str_replace( '-', ' ', str_replace( '_', ' ', $title ) ),
 				'post_status' => 'inherit',
 				'guid' => $uploads['url'] . '/' . $filename
 			);
