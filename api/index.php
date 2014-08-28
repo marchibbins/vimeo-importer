@@ -40,7 +40,7 @@ class Vimeo_Importer_Api {
 		'videos' => array(
 			'method' => 'GET',
 			'resource' => 'vimeo',
-			'fields' => 'uri,name,description,pictures',
+			'fields' => 'uri,name,description,duration,width,height,pictures',
 			'url' => '/me/videos'
 		),
 		'import_albums' => array(
@@ -314,7 +314,10 @@ class Vimeo_Importer_Api {
 					'post_title' => $video['name'],
 					'post_content' => $video['description'],
 					'dsv_vimeo_holdingframe_url' => 'http://i.vimeocdn.com/video/' . $picture_uri[4] . '.jpg',
-					'dsv_vimeo_link' => 'vimeo.com/' . $uri[2]
+					'dsv_vimeo_link' => 'vimeo.com/' . $uri[2],
+					'dsv_vimeo_duration' => $video['duration'],
+					'dsv_vimeo_width' => $video['width'],
+					'dsv_vimeo_height' => $video['height']
 				) );
 
 			}

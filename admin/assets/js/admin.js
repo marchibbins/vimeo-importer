@@ -296,7 +296,10 @@
 							post_title: result.name,
 							post_content: result.description,
 							dsv_vimeo_holdingframe_url: result.image,
-							dsv_vimeo_link: 'vimeo.com/' + id
+							dsv_vimeo_link: 'vimeo.com/' + id,
+							dsv_vimeo_duration: result.duration,
+							dsv_vimeo_width: result.width,
+							dsv_vimeo_height: result.height
 						};
 						videos.push(obj);
 					}
